@@ -72,6 +72,17 @@ public class TeleOp extends OpMode {
         bottomLeft.setPower(y + x);
     }
 
+//    double accel = 0.03;
+    double decel = 0.9;
+
+
+    double vTopLeft = 0;
+    double vTopRight = 0;
+    double vBottomLeft = 0;
+    double vBottomRight = 0;
+
+    double pow = 0.5;
+
     @Override
     public void loop() {
         double leftY = gamepad1.left_stick_y;
@@ -79,26 +90,28 @@ public class TeleOp extends OpMode {
         double rightY = gamepad1.right_stick_y;
         double rightX = gamepad1.right_stick_x;
         double angle = Math.atan(leftY/leftX);
+        double temp = Math.sqrt(leftY * leftY + leftX * leftX);
 
-
-        if(gamepad1.right_trigger == 1) {
-            //move(angle, 0);
-            topLeft.setPower     (leftY + leftX - rightX);   //make leftX - if it doesn't work
-            topRight.setPower    (leftY - leftX + rightX);
-            bottomLeft.setPower  (leftY - leftX - rightX);
-            bottomRight.setPower (leftY + leftX + rightX);   //make leftX - if it doesn't work
-        } else {
-            //Normal Movement
-            telemetry.addData("y left thing", leftY);
-            telemetry.addData("x left thing", leftX);
-            topLeft.setPower(    (leftY + leftX - rightX) * .5);     //make leftX - if it doesn't work
-            topRight.setPower(   (leftY - leftX + rightX) * .5);
-            bottomLeft.setPower( (leftY - leftX - rightX) * .5);
-            bottomRight.setPower((leftY + leftX + rightX) * .5);     //make leftX - if it doesn't work
+        /*
+        if (gamepad1.x) {
+            pow = 1.0;
         }
+        if (gamepad1.a) {
+            pow = 0.5;
+        }
+        if (gamepad1.b) {
+            pow = 0.25;
+        }
+        */
+
+        pow = 0.5 + (gamepad1.right_trigger/2.0);
+
+        topLeft.setPower(    (leftY + leftX - rightX) * pow);
+        topRight.setPower(   (leftY - leftX + rightX) * pow);
+        bottomLeft.setPower( (leftY - leftX - rightX) * pow);
+        bottomRight.setPower((leftY + leftX + rightX) * pow);
 
         spinnyThing.setPower(gamepad2.right_stick_x);
-
         scoop.setPower(gamepad2.left_stick_y);
 
     }

@@ -97,7 +97,10 @@ public abstract class ParentOrigin extends LinearOpMode {
 
         while (opModeIsActive()) {
             Orientation angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-            telemetry.addData("Currently buffering position: ", angles.firstAngle);
+            telemetry.addData("topLeft Encoder Ticks: ", topLeft.getCurrentPosition());
+            telemetry.addData("topRight Encoder Ticks: ", topRight.getCurrentPosition());
+            telemetry.addData("bottomLeft Encoder Ticks: ", bottomLeft.getCurrentPosition());
+            telemetry.addData("bottomRight Encoder Ticks: ", bottomRight.getCurrentPosition());
             telemetry.update();
             if (angle < angles.firstAngle) {
                 topLeft.setPower(-0.05);
@@ -148,6 +151,10 @@ public abstract class ParentOrigin extends LinearOpMode {
         topRight.setPower(powLeft);
         bottomLeft.setPower(powRight);
         bottomRight.setPower(powRight);
+        topLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        topRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        bottomLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        bottomRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     }
     public void turnHeadingAM(double angle) throws InterruptedException { // this is not really turn heading, it's weirder
         this.pid.setSetpoint(angle);
@@ -176,6 +183,7 @@ public abstract class ParentOrigin extends LinearOpMode {
 
         while (opModeIsActive()) {
             Orientation angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+
             telemetry.addData("Currently buffering position: ", angles.firstAngle);
             telemetry.update();
 
@@ -279,5 +287,6 @@ public abstract class ParentOrigin extends LinearOpMode {
         scoop.setPower(0);
 
     }
+
 
 }
