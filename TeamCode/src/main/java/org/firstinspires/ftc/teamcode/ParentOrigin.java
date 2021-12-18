@@ -18,8 +18,9 @@ public abstract class ParentOrigin extends LinearOpMode {
     DcMotor bottomLeft;
     DcMotor bottomRight;
 
-    CRServo spinnyThing;
-    CRServo scoop;
+    DcMotor flyWheel;
+    DcMotor armBase;
+    CRServo claw;
 
     BNO055IMU imu;
 
@@ -29,14 +30,11 @@ public abstract class ParentOrigin extends LinearOpMode {
     PIDControl pid;
 
     public void initRobo(){
-        topLeft = hardwareMap.dcMotor.get("topLeft"); //1
-        topRight = hardwareMap.dcMotor.get("topRight"); //0
-        bottomLeft = hardwareMap.dcMotor.get("bottomLeft"); //2
-        bottomRight = hardwareMap.dcMotor.get("bottomRight"); //3
-
-        spinnyThing = hardwareMap.crservo.get("spinnyThing"); //Servo 0
-        scoop = hardwareMap.crservo.get("scoop");
-        scoop.setDirection(CRServo.Direction.FORWARD);
+        //Control Hub
+        topLeft = hardwareMap.dcMotor.get("topLeft");           //1 Motor
+        topRight = hardwareMap.dcMotor.get("topRight");         //0 Motor
+        bottomLeft = hardwareMap.dcMotor.get("bottomLeft");     //2 Motor
+        bottomRight = hardwareMap.dcMotor.get("bottomRight");   //3 Motor
 
         topLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         topRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -47,8 +45,6 @@ public abstract class ParentOrigin extends LinearOpMode {
         topRight.setDirection(DcMotorSimple.Direction.FORWARD);
         bottomLeft.setDirection(DcMotorSimple.Direction.REVERSE);
         bottomRight.setDirection(DcMotorSimple.Direction.FORWARD);
-
-        spinnyThing.setDirection(CRServo.Direction.REVERSE); //Reverse servo
 
         topLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         topRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -65,7 +61,28 @@ public abstract class ParentOrigin extends LinearOpMode {
         bottomLeft.setPower(0);
         bottomRight.setPower(0);
 
-        spinnyThing.setPower(0);
+        //Expansion Hub
+        claw = hardwareMap.crservo.get("claw");                 //1 CR Servo
+        flyWheel = hardwareMap.dcMotor.get("flyWheel");         //0 Motor
+        armBase = hardwareMap.dcMotor.get("armBase");           //1 Motor
+
+        flyWheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        armBase.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        flyWheel.setDirection(DcMotor.Direction.FORWARD);
+        armBase.setDirection(DcMotor.Direction.REVERSE);
+
+        claw.setDirection(CRServo.Direction.FORWARD);
+
+        armBase.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        flyWheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        armBase.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        flyWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        armBase.setPower(0);
+        claw.setPower(0);
+        flyWheel.setPower(0);
 
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
         imu = hardwareMap.get(BNO055IMU.class, "imu");
@@ -263,7 +280,7 @@ public abstract class ParentOrigin extends LinearOpMode {
         telemetry.addData("bottomRight Encoder Ticks: ", bottomRight.getCurrentPosition());
         telemetry.update();
     }
-    public void rotation(double pow, int time) throws InterruptedException{
+    public void rotation(double pow, int time) throws InterruptedException {
         setEachPow(pow, -pow, pow, -pow);
         readEncoder();
 
@@ -271,22 +288,13 @@ public abstract class ParentOrigin extends LinearOpMode {
 
         setSinglePow(0);
     }
-
-    //Servo movement
-    public void servoMove(double pow, int time) throws InterruptedException {
-        spinnyThing.setPower(pow);
-
-        Thread.sleep(time);
-    }
-
-    public void moveScoop(double pow, int time) throws InterruptedException {
-        scoop.setPower(pow);
-
-        Thread.sleep(time);
-
-        scoop.setPower(0);
+    public void EncodelinearX(double pow, int ticks){
+        readEncoder();
+        topLeft.setTargetPosition(ticks);
+        topRight.setTargetPosition(ticks);
+        bottomLeft.setTargetPosition(ticks);
+        bottomRight.setTargetPosition(ticks);
 
     }
-
 
 }

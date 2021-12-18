@@ -43,13 +43,15 @@ public class AutoOrigin extends ParentOrigin{
         linearY(0.5, 770/2);
         readEncoder();
          */
-        for (int x=0; x<30; x++) {
+        for(int x=0; x<30; x++) {
             topRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
             topRight.setTargetPosition(x);
 
             topRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             topRight.setPower(.25);
+            telemetry.addData("Encoder Ticks: ", topRight.getCurrentPosition());
+            telemetry.update();
             while (topRight.isBusy()) {
 
             }

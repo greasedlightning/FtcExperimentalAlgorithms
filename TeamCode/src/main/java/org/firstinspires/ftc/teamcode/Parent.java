@@ -7,6 +7,8 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
+
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
@@ -19,6 +21,8 @@ public abstract class Parent extends LinearOpMode {
     DcMotor topRight;
     DcMotor bottomLeft;
     DcMotor bottomRight;
+
+    DcMotor arm;
 
     BNO055IMU imu;
     Orientation lastAngles;
@@ -55,6 +59,15 @@ public abstract class Parent extends LinearOpMode {
         topRight.setPower(0);
         bottomLeft.setPower(0);
         bottomRight.setPower(0);
+
+        //random stuff
+        arm = hardwareMap.dcMotor.get("arm");
+        arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        arm.setDirection(DcMotorSimple.Direction.FORWARD);
+        arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        arm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        arm.setPower(0);
 
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
         imu = hardwareMap.get(BNO055IMU.class, "imu");
@@ -216,6 +229,16 @@ public abstract class Parent extends LinearOpMode {
         telemetry.addData("bottomRight Encoder Ticks: ", bottomRight.getCurrentPosition());
         telemetry.update();
     }
+    public void moving(int ticks){
+        arm.setTargetPosition(ticks);
+        arm.setPower(0.5);
+        telemetry.addData("Encoder Ticks: ", arm.getCurrentPosition());
+        telemetry.update();
+        while (arm.isBusy()) {
+
+        }
+        arm.setPower(0);
+    }
     /*
     public void moveDis(double distance, boolean dir){ //enter distance in meters
         double avrVelocity = 0.00169;
@@ -229,7 +252,63 @@ public abstract class Parent extends LinearOpMode {
         }
     }
 
-     */
+    ⠀⠀⠀⠀⠀⠀⠀⠀⣠⣤⣤⣤⣤⣤⣶⣦⣤⣄⡀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⢀⣴⣿⡿⠛⠉⠙⠛⠛⠛⠛⠻⢿⣿⣷⣤⡀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⣼⣿⠋⠀⠀⠀⠀⠀⠀⠀⢀⣀⣀⠈⢻⣿⣿⡄⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⣸⣿⡏⠀⠀⠀⣠⣶⣾⣿⣿⣿⠿⠿⠿⢿⣿⣿⣿⣄⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⣿⣿⠁⠀⠀⢰⣿⣿⣯⠁⠀⠀⠀⠀⠀⠀⠀⠈⠙⢿⣷⡄⠀
+⠀⠀⣀⣤⣴⣶⣶⣿⡟⠀⠀⠀⢸⣿⣿⣿⣆⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣿⣷⠀
+⠀⢰⣿⡟⠋⠉⣹⣿⡇⠀⠀⠀⠘⣿⣿⣿⣿⣷⣦⣤⣤⣤⣶⣶⣶⣶⣿⣿⣿⠀
+⠀⢸⣿⡇⠀⠀⣿⣿⡇⠀⠀⠀⠀⠹⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⠃⠀
+⠀⣸⣿⡇⠀⠀⣿⣿⡇⠀⠀⠀⠀⠀⠉⠻⠿⣿⣿⣿⣿⡿⠿⠿⠛⢻⣿⡇⠀⠀
+⠀⣿⣿⠁⠀⠀⣿⣿⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⣿⣧⠀⠀
+⠀⣿⣿⠀⠀⠀⣿⣿⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⣿⣿⠀⠀
+⠀⣿⣿⠀⠀⠀⣿⣿⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⣿⣿⠀⠀
+⠀⢿⣿⡆⠀⠀⣿⣿⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⣿⡇⠀⠀
+⠀⠸⣿⣧⡀⠀⣿⣿⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣿⣿⠃⠀⠀
+⠀⠀⠛⢿⣿⣿⣿⣿⣇⠀⠀⠀⠀⠀⣰⣿⣿⣷⣶⣶⣶⣶⠶⢠⣿⣿⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⣿⣿⠀⠀⠀⠀⠀⣿⣿⡇⠀⣽⣿⡏⠁⠀⠀⢸⣿⡇⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⣿⣿⠀⠀⠀⠀⠀⣿⣿⡇⠀⢹⣿⡆⠀⠀⠀⣸⣿⠇⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⢿⣿⣦⣄⣀⣠⣴⣿⣿⠁⠀⠈⠻⣿⣿⣿⣿⡿⠏⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠈⠛⠻⠿⠿⠿⠿⠋⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
 
+    boolean red_sus = true;
+    while(red_sus){
+        telemetry.addLine("amogus");
+        telemetry.update();
+    }
+
+⣿⣿⣿⣿⣿⣿⣿⡿⠿⠛⠛⢉⣉⣉⣉⣉⡛⠛⠛⠛⠛⠛⠛⠻⠻⠿⠿⣿⣿⣿⣿
+⣿⣿⣿⣿⠟⠋⠉⣤⣴⣶⣿⣿⣿⣿⣿⣿⣿⣿⣶⣦⣤⠀⠁⠀⠄⠀⠄⠀⠌⠉⠛
+⣟⠉⠁⠀⠀⢀⣤⣶⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⣄⠀⠐⠀⠐⠀⠐⠀
+⡟⠀⠀⠀⠒⠋⠉⠉⠈⠀⠉⠉⠙⠻⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣦⡀⠈⢀⠈⠀⠄
+⠀⠀⠀⠀⣀⣴⠖⢁⣠⣶⣶⣶⣦⣴⣿⣿⣻⣾⣿⣾⣿⣻⣿⣿⣿⣧⠀⠀⡀⠂⠀
+⠀⣀⣰⣾⡿⠁⢠⣻⣽⣿⣟⣿⣟⣿⣿⣽⣿⢿⣷⡿⣟⣿⣷⣷⠹⣿⡆⠀⠀⡀⠁
+⠘⣿⣿⡟⠁⠀⡾⣽⣿⣯⣿⣿⣻⣿⣽⣿⣽⣿⡿⣿⣿⢿⣻⣾⡀⠸⣯⠀⠀⠀⠄
+⠀⣺⡿⠀⠀⢨⣟⣿⣽⣯⣿⣾⣿⣿⣽⣿⣽⣿⢿⣟⣿⣿⣿⣿⡿⡆⠈⠀⠀⠂⠀
+⠀⢺⡯⠀⠀⣼⢾⢻⠿⠻⠿⠽⣷⣿⣯⣿⠿⠚⠛⠙⠉⢈⣀⠠⠌⣀⠀⡀⠀⢀⠁
+⠀⠈⠟⢀⣀⢈⣀⠄⢀⢤⠀⠀⠀⠉⣉⣌⠀⢀⠀⠊⢑⣒⠈⠀⣸⣿⡀⣿⡀⠀⡀
+⠀⠀⢰⡆⠀⠈⠁⠂⣩⣤⣤⣤⡀⠀⣾⣿⣦⣼⣿⣾⣿⢿⡾⢀⣿⣟⣿⡯⠂⠀⡀
+⠀⠀⠀⠑⠀⠀⠹⣶⣿⣿⣿⣿⠋⢀⣷⣿⣟⣿⡯⢿⢾⣿⣷⣾⣿⣻⣿⠃⠀⢀⠀
+⠀⠀⠀⠀⠀⠀⠐⣤⡿⣿⡾⠂⠰⡅⠓⡿⣿⡻⠃⣄⠈⠚⣽⣾⡿⣟⠛⠀⠀⠄⠀
+⠀⠄⠀⠀⠀⠀⠀⠀⠙⠁⠀⠀⠀⣤⣤⣀⣀⣴⣿⣿⣷⣤⡀⢸⣿⡇⠀⠀⠐⠈⣿
+⠀⠀⠂⠀⠀⠀⠀⠀⢰⡦⠀⠐⠟⠋⠉⠉⣁⣀⣀⠀⠀⠀⠀⣰⣿⡧⠀⠐⠀⢼⣿
+⠀⠁⡀⠂⠀⠀⠀⠀⠹⣽⡄⠀⠀⠀⠀⣉⣥⣤⣦⣶⣿⣷⢐⣿⣿⠇⠀⠀⠒⠛⠛
+⠀⠄⠀⠐⠈⠀⠀⠀⠀⠛⣮⣄⡦⠀⠀⣄⣻⣿⣿⣿⣻⣾⣿⣿⡛⠀⣄⠀⠈⠀⠂
+⠀⠠⠈⠀⠂⠁⡀⠀⠀⠀⠀⠑⠛⠅⠀⣼⣿⣿⣿⣿⣟⣿⠷⠋⢀⣰⣿⡆⠠⣄⠀
+⠀⠄⠂⠐⠀⠁⠀⠀⢀⣄⠀⠀⠀⠀⠀⢻⣿⣿⣿⣿⠎⠁⠀⣠⣾⣿⣿⡇⢸⡾⡀
+⠀⠠⠐⠀⠂⠁⠀⠀⠸⣾⣗⣦⣀⡀⠀⠀⠛⠿⣿⠏⠀⠤⠚⠛⣿⣿⣿⡃⣸⣿⠆
+⠀⠄⠀⠀⠀⠀⠀⣤⠀⢿⣿⣿⠉⠉⠀⠀⠀⠀⠉⠁⠀⠀⠀⠀⢸⣿⣿⢰⣿⣿⢧
+⠀⠀⠀⠀⡀⠀⠨⣿⢦⠈⢿⣷⡀⠀⠀⠀⢀⡄⠀⠀⢢⣀⠐⢶⣽⣿⠏⣾⣿⣿⣯
+⣿⡳⠀⠀⠀⠀⠨⣿⣯⣷⡈⢻⣿⣿⡏⣴⡟⠀⠀⠀⠈⣿⣷⣦⣻⣿⣿⣿⣿⣿⡷
+⣿⠀⠀⠀⠁⠀⠀⣿⣿⣷⣿⣦⣙⣿⣿⣻⠁⠀⣲⠀⠀⠹⠿⠟⠟⠛⠋⠋⢉⣉⡉
+⡇⠀⠀⠄⠂⠀⠀⠻⠿⠟⠋⠋⠉⠉⠈⠀⠀⠀⠀⠀⠀⢀⠀⡀⠄⢹⣿⠀⠌⣿⡇
+⣷⣄⡀⠠⠀⠀⠀⠀⠀⠀⠀⡀⢀⠀⠄⠀⠄⠂⠐⠈⢀⠠⠀⢀⠠⢸⣿⡅⠀⢿⣿
+⣿⣿⣿⣦⣄⡀⢀⠠⠀⠂⠁⠀⡀⠀⠄⠂⢀⠐⠀⠂⠀⡀⠄⢀⠀⠨⣿⣇⠀⢘⣿
+⣿⣿⣿⣿⣿⣿⣷⣤⣄⣐⠈⠀⡀⠄⠀⠂⢀⠠⠐⠀⠁⢀⠀⡀⠄⠂⣿⣷⡀⠄⣿
+⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⣷⣶⣤⣤⣥⣀⣄⣀⣂⣈⣀⣠⣠⣤⣤⣿⣿⣾⣿⣿
+
+    boolean its_finger_licking_good = true;
+    */
 
 }
