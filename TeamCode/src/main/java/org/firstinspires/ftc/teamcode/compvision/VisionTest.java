@@ -40,6 +40,7 @@ import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 import org.firstinspires.ftc.teamcode.R;
 
+
 import java.util.List;
 
 /**
@@ -108,6 +109,9 @@ public class VisionTest extends LinearOpMode {
         // first.
         initVuforia();
         initTfod();
+        //HelloCV c = new HelloCV();
+
+
 
         /**
          * Activate TensorFlow Object Detection before we wait for the start command.
