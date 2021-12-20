@@ -123,12 +123,14 @@ public class TeleOp extends OpMode {
         double rightX = gamepad1.right_stick_x;
 
         //Gamepad 2 Declarations
-        double armVal = gamepad2.right_stick_y;
-        double valcR = gamepad2.right_trigger;
-        double valcL = gamepad2.left_trigger;
-
-        double angle = Math.atan(leftY/leftX);
-        double temp = Math.sqrt(leftY * leftY + leftX * leftX);
+        // this was gamepad2.right_stick_y
+        boolean armA = gamepad1.a;
+        boolean armB = gamepad1.b;
+        //end
+        //this was gamepad2
+        double valcR = gamepad1.right_trigger;
+        double valcL = gamepad1.left_trigger;
+        //end
 
         /*
         if (gamepad1.x) {
@@ -169,7 +171,7 @@ public class TeleOp extends OpMode {
         */
 
         //Traditional Wheel Drive//
-        if(gamepad1.right_trigger == 1) {
+        /*if(gamepad1.right_trigger == 1) {
             //move(angle, 0);
             topLeft.setPower     (leftY - leftX - rightX);
             topRight.setPower    (leftY + leftX + rightX);
@@ -182,8 +184,13 @@ public class TeleOp extends OpMode {
             topRight.setPower(   (leftY + leftX + rightX) * .5);
             bottomLeft.setPower( (leftY + leftX - rightX) * .5);
             bottomRight.setPower((leftY + leftX + rightX) * .5);
-        }
-
+        }*/
+        //one controller
+        //Normal Movement
+        topLeft.setPower(    (leftY - leftX - rightX) * .5);
+        topRight.setPower(   (leftY + leftX + rightX) * .5);
+        bottomLeft.setPower( (leftY + leftX - rightX) * .5);
+        bottomRight.setPower((leftY + leftX + rightX) * .5);
 
         //flyWheel set to gamepad 1 right bumper
         if(gamepad1.right_bumper){
@@ -197,7 +204,18 @@ public class TeleOp extends OpMode {
         }
 
         //Claw and arm
-        armBase.setPower(armVal*.5);
+        //armBase.setPower(armVal*.5);
+
+        //one controller only
+        if(armA){
+            armBase.setPower(.5);
+        }
+        else if(armB){
+            armBase.setPower(-.5);
+        }
+        else{
+            armBase.setPower(0);
+        }//end
 
         if(valcR > 0){
             claw.setPower(valcR*0.5);
