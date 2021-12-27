@@ -22,6 +22,7 @@
 package org.firstinspires.ftc.teamcode.compvision;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 
@@ -37,6 +38,7 @@ import org.openftc.easyopencv.OpenCvCamera;
 
 import java.nio.charset.StandardCharsets;
 
+@TeleOp
 public class ThreeWebcams extends LinearOpMode
 {
     WebcamName webcam1;
@@ -76,7 +78,8 @@ public class ThreeWebcams extends LinearOpMode
             public void onOpened()
             {
                 String name = switchableWebcam.getActiveCamera().getDeviceName();
-                int id = name.charAt(7) - 48;
+
+                int id = Integer.valueOf(name.charAt(7));
 
                 switchableWebcam.setPipeline(camPipeline[id]);
                 switchableWebcam.startStreaming(320, 240, OpenCvCameraRotation.UPRIGHT);
@@ -94,6 +97,8 @@ public class ThreeWebcams extends LinearOpMode
 
         waitForStart();
 
+        int currentWebcam = 1;
+
         while (opModeIsActive())
         {
             telemetry.addLine("a = Webcam 1, b = Webcam 2, y = Webcam 3\n");
@@ -102,7 +107,7 @@ public class ThreeWebcams extends LinearOpMode
             telemetry.addData("Total frame time ms", switchableWebcam.getTotalFrameTimeMs());
             telemetry.addData("Pipeline time ms", switchableWebcam.getPipelineTimeMs());
             telemetry.addData("Overhead time ms", switchableWebcam.getOverheadTimeMs());
-            telemetry.addData("Overhead time ms", switchableWebcam.getOverheadTimeMs());
+            telemetry.addData("Current webcam: ", currentWebcam);
             telemetry.update();
 
             /**
@@ -111,13 +116,16 @@ public class ThreeWebcams extends LinearOpMode
              */
             if(gamepad1.a)
             {
+                currentWebcam = 1;
                 switchableWebcam.setActiveCamera(webcam1);
             }
             else if(gamepad1.b)
             {
+                currentWebcam = 2;
                 switchableWebcam.setActiveCamera(webcam2);
             } else if(gamepad1.y)
             {
+                currentWebcam = 3;
                 switchableWebcam.setActiveCamera(webcam3);
             }
 
