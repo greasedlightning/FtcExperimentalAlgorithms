@@ -10,7 +10,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
-public abstract class ParentOrigin extends LinearOpMode {
+public abstract class ParentOrigin extends LinearOpMode{
     ElapsedTime time = new ElapsedTime();
 
     DcMotor topLeft;
@@ -105,6 +105,20 @@ public abstract class ParentOrigin extends LinearOpMode {
         this.pid.enable();
 
         waitForStart();
+    }
+
+    public void moveArmBase(double power, int time) throws InterruptedException{
+        armBase.setPower(power);
+        Thread.sleep(time);
+        armBase.setPower(0);
+    }
+
+    public void moveClaw(double power) throws InterruptedException{
+        claw.setPower(power);
+    }
+
+    public void resetClaw(){
+        claw.setPower(0);
     }
 
     //Gyro
@@ -280,6 +294,7 @@ public abstract class ParentOrigin extends LinearOpMode {
         telemetry.addData("bottomRight Encoder Ticks: ", bottomRight.getCurrentPosition());
         telemetry.update();
     }
+
     public void rotation(double pow, int time) throws InterruptedException {
         setEachPow(pow, -pow, pow, -pow);
         readEncoder();
@@ -288,6 +303,7 @@ public abstract class ParentOrigin extends LinearOpMode {
 
         setSinglePow(0);
     }
+
     public void EncodelinearX(double pow, int ticks){
         readEncoder();
         topLeft.setTargetPosition(ticks);
@@ -296,5 +312,4 @@ public abstract class ParentOrigin extends LinearOpMode {
         bottomRight.setTargetPosition(ticks);
 
     }
-
 }
