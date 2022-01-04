@@ -161,35 +161,6 @@ public class ThreeWebcams extends LinearOpMode
              * Draw a simple box around the middle 1/2 of the entire frame
              */
 
-            int green = 0;
-            int tot = 0;
-            for (int x = input.cols()/4; x < input.cols()*3/4; x++) {
-                for (int y = input.rows()/4; y < input.rows()*3/4; y++ ) {
-                    double[] d = input.get(x, y);
-                    green += d[1];
-                    tot++;
-                }
-            }
-
-
-            if (green/tot > 200) {
-                Imgproc.rectangle(
-                        input,
-                        new Point(
-                                input.cols()/4,
-                                input.rows()/4),
-                        new Point(
-                                input.cols()*(3f/4f),
-                                input.rows()*(3f/4f)),
-                        new Scalar(0, 255, 0), 4);
-            }
-
-
-            /**
-             * NOTE: to see how to get data from your pipeline to your OpMode as well as how
-             * to change which stage of the pipeline is rendered to the viewport when it is
-             * tapped, please see {@link PipelineStageSwitchingExample}
-             */
 
             return input;
         }
