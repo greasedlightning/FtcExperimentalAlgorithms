@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import org.firstinspires.ftc.teamcode.Parent;
 
 @Autonomous(name = "AutonomousOrigin", group = "autonomous")
-public class AutoOrigin extends ParentOrigin{
+public class AutoOrigin extends ParentOrigin {
     @Override
     public void runOpMode() throws InterruptedException {
         initRobo();
