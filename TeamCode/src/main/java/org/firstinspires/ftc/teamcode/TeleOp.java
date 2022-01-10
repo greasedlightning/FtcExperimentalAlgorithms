@@ -24,7 +24,7 @@ import java.lang.Math;
 
 @com.qualcomm.robotcore.eventloop.opmode.TeleOp(name = "TeleOp", group = "TeleOp")
 // owo
-public class TeleOp extends OpMode {
+public class TeleOp extends OpMode{
     ElapsedTime a = new ElapsedTime();
     DcMotor topLeft;
     DcMotor topRight;
@@ -38,7 +38,7 @@ public class TeleOp extends OpMode {
 
     @Override
     public void init() {
-        //Control Hub
+        // Control Hub
         topLeft = hardwareMap.dcMotor.get("topLeft");           //1
         topRight = hardwareMap.dcMotor.get("topRight");         //0 
         bottomLeft = hardwareMap.dcMotor.get("bottomLeft");     //2
@@ -59,7 +59,7 @@ public class TeleOp extends OpMode {
         bottomLeft.setPower(0);
         bottomRight.setPower(0);
 
-        //Expansion Hub
+        // Expansion Hub
         claw = hardwareMap.crservo.get("claw");                 //0 CR Servo
         flyWheel = hardwareMap.dcMotor.get("flyWheel");         //0
         armBase = hardwareMap.dcMotor.get("armBase");           //1
@@ -68,13 +68,17 @@ public class TeleOp extends OpMode {
         armBase.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         flyWheel.setDirection(DcMotor.Direction.FORWARD);
-        armBase.setDirection(DcMotor.Direction.REVERSE);
+        armBase.setDirection(DcMotor.Direction.FORWARD);
 
         claw.setDirection(CRServo.Direction.FORWARD);
+
+        armBase.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        armBase.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         armBase.setPower(0);
         claw.setPower(0);
         flyWheel.setPower(0);
+
     }
 
     //Movement functions
@@ -94,10 +98,6 @@ public class TeleOp extends OpMode {
 
     //Read encoders
     public void readEncoder(){
-        telemetry.addData("topLeft Encoder Ticks: ", topLeft.getCurrentPosition());
-        telemetry.addData("topRight Encoder Ticks: ", topRight.getCurrentPosition());
-        telemetry.addData("bottomLeft Encoder Ticks: ", bottomLeft.getCurrentPosition());
-        telemetry.addData("bottomRight Encoder Ticks: ", bottomRight.getCurrentPosition());
         telemetry.addData("armBase Encoder Ticks: ", armBase.getCurrentPosition());
         telemetry.update();
     }
@@ -111,7 +111,35 @@ public class TeleOp extends OpMode {
     double vBottomRight = 0;
 
     double pow = 0.5;
+    public void readEncoderArm(){
+        telemetry.addData("Encoder Ticks: ", armBase.getCurrentPosition());
+        telemetry.update();
+    }
+    public void moveArm(int ticks, double power) throws InterruptedException{
+        armBase.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        //arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        armBase.setTargetPosition(ticks);
+        armBase.setPower(power);
+        armBase.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
+        while (armBase.isBusy()) {
+            readEncoderArm();
+        }
+        //arm.setPower(0);
+        //arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+    }
+    public void resetClaw(int time) throws InterruptedException {
+        claw.setPower(0);
+        claw.setPower(-1);
+        Thread.sleep(time);
+        claw.setPower(0);
+    }
+    public void closeClaw(int time) throws InterruptedException {
+        claw.setPower(0);
+        claw.setPower(1);
+        Thread.sleep(time);
+        claw.setPower(0);
+    }
 
     @Override
     public void loop() {
@@ -181,6 +209,18 @@ public class TeleOp extends OpMode {
             bottomRight.setPower((leftY + leftX + rightX) * .5);
         }
 
+        if (gamepad2.x){
+            try {
+                resetClaw(200);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+        }
+        if (gamepad2.y){
+
+        }
+
 
         //flyWheel set to gamepad 2 right bumper
         if(gamepad2.right_bumper){
@@ -193,14 +233,23 @@ public class TeleOp extends OpMode {
             flyWheel.setPower(0);
         }
 
+
         //Claw and arm
-        armBase.setPower(armVal*.5);
+        double armOffset;
+        if(gamepad2.right_trigger > 0){
+            armOffset = 0.25;
+        }
+        else{
+            armOffset = 0.5;
+        }
+
+        armBase.setPower(armVal*armOffset);
 
         if(valcR > 0){
-            claw.setPower(valcR*0.5);
+            claw.setPower(valcR*-0.5);
         }
         else if(valcL > 0){
-            claw.setPower(valcL*-0.5);
+            claw.setPower(valcL*0.5);
         }
         else{
             claw.setPower(0);

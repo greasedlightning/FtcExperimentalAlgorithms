@@ -7,7 +7,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import org.firstinspires.ftc.teamcode.Parent;
 
 @Autonomous(name = "encoderTest", group = "autonomous")
-public class encoderTest extends Parent {
+public class encoderTest extends ParentOrigin{
     @Override
     public void runOpMode() throws InterruptedException {
         initRobo();
@@ -15,12 +15,15 @@ public class encoderTest extends Parent {
         /*while (true) {
             moveArm(200, .1);
         }*/
-        linearY(-.2, 100);
-        Thread.sleep(5000);
         linearY(-.2, 500);
-        Thread.sleep(5000);
+        Thread.sleep(10000);
+        linearY(-.2, 750);
+        Thread.sleep(10000);
         linearY(-.2, 1000);
-        Thread.sleep(2000);
-
+        Thread.sleep(10000);
+        linearY(-.2, 1250);
+        Thread.sleep(10000);
+        linearY(-.2, 1500);
+        Thread.sleep(10000);
     }
 }

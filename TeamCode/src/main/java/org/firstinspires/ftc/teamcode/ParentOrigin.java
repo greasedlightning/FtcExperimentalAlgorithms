@@ -70,7 +70,7 @@ public abstract class ParentOrigin extends LinearOpMode{
         armBase.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         flyWheel.setDirection(DcMotor.Direction.FORWARD);
-        armBase.setDirection(DcMotor.Direction.REVERSE);
+        armBase.setDirection(DcMotor.Direction.FORWARD);
 
         claw.setDirection(CRServo.Direction.FORWARD);
 
@@ -117,7 +117,16 @@ public abstract class ParentOrigin extends LinearOpMode{
         claw.setPower(power);
     }
 
-    public void resetClaw(){
+    public void resetClaw(int time) throws InterruptedException {
+        claw.setPower(0);
+        claw.setPower(-1);
+        Thread.sleep(time);
+        claw.setPower(0);
+    }
+    public void closeClaw(int time) throws InterruptedException {
+        claw.setPower(0);
+        claw.setPower(1);
+        Thread.sleep(time);
         claw.setPower(0);
     }
 
@@ -179,13 +188,9 @@ public abstract class ParentOrigin extends LinearOpMode{
     }
     public void setColumnPow(double powLeft, double powRight){
         topLeft.setPower(powLeft);
-        topRight.setPower(powLeft);
-        bottomLeft.setPower(powRight);
+        topRight.setPower(powRight);
+        bottomLeft.setPower(powLeft);
         bottomRight.setPower(powRight);
-        topLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        topRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        bottomLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        bottomRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     }
     public void turnHeadingAM(double angle) throws InterruptedException { // this is not really turn heading, it's weirder
         this.pid.setSetpoint(angle);
@@ -268,7 +273,7 @@ public abstract class ParentOrigin extends LinearOpMode{
 
     //Forward/Backward
     public void linearY(double pow, int time) throws InterruptedException {
-        setSinglePow(pow);
+        setSinglePow(-pow);
         readEncoder();
 
         Thread.sleep(time);
@@ -286,6 +291,13 @@ public abstract class ParentOrigin extends LinearOpMode{
         setSinglePow(0);
     }
 
+    public void startFlywheel(double pow, int time) throws InterruptedException {
+        flyWheel.setPower(pow);
+
+        Thread.sleep(time);
+        flyWheel.setPower(0);
+    }
+
     //Read encoders
     public void readEncoder(){
         telemetry.addData("topLeft Encoder Ticks: ", topLeft.getCurrentPosition());
@@ -295,21 +307,59 @@ public abstract class ParentOrigin extends LinearOpMode{
         telemetry.update();
     }
 
-    public void rotation(double pow, int time) throws InterruptedException {
-        setEachPow(pow, -pow, pow, -pow);
-        readEncoder();
+    public void readEncoderArm(){
+        telemetry.addData("Encoder Ticks: ", armBase.getCurrentPosition());
+        telemetry.update();
+    }
+    public void moveArm(int ticks, double power) throws InterruptedException{
+        armBase.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        //arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        armBase.setTargetPosition(ticks);
+        armBase.setPower(power);
+        armBase.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-        Thread.sleep(time);
-
-        setSinglePow(0);
+        while (armBase.isBusy()) {
+            readEncoderArm();
+        }
+        //arm.setPower(0);
+        //arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
 
-    public void EncodelinearX(double pow, int ticks){
-        readEncoder();
+    public void moveRobot(int ticks, double power) throws InterruptedException{
+        topLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        topRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        bottomLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        bottomRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        //arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         topLeft.setTargetPosition(ticks);
         topRight.setTargetPosition(ticks);
         bottomLeft.setTargetPosition(ticks);
         bottomRight.setTargetPosition(ticks);
 
+        topLeft.setPower(power);
+        topRight.setPower(power);
+        bottomLeft.setPower(power);
+        bottomRight.setPower(power);
+
+        topLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        topRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        bottomLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        bottomRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        while (topLeft.isBusy() || topRight.isBusy() || bottomLeft.isBusy() || bottomRight.isBusy()) {
+            readEncoder();
+        }
+
+        topLeft.setPower(0);
+        topRight.setPower(0);
+        bottomLeft.setPower(0);
+        bottomRight.setPower(0);
+
+        topLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        topRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        bottomLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        bottomRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
+
 }
