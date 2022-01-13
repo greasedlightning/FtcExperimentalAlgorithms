@@ -19,14 +19,12 @@
  * SOFTWARE.
  */
 
-package org.firstinspires.ftc.teamcode.compvision;
+package org.firstinspires.ftc.teamcode.junk;
 
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.teamcode.Parent;
-import org.firstinspires.ftc.teamcode.ParentOrigin;
+import org.firstinspires.ftc.teamcode.LeoOpMode;
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
 import org.opencv.core.Scalar;
@@ -41,8 +39,9 @@ import org.openftc.easyopencv.OpenCvPipeline;
  * This version of the internal camera example uses EasyOpenCV's interface to the
  * original Android camera API
  */
-@Autonomous(name = "AutonomousLegit", group = "autonomous")
-public class ShippingElementDetect extends ParentOrigin
+@Disabled
+@TeleOp(name = "CameraShow", group = "teleop")
+public class CameraShow extends LeoOpMode
 {
     OpenCvCamera phoneCam;
     private int path = -1;
@@ -127,10 +126,10 @@ public class ShippingElementDetect extends ParentOrigin
          */
         waitForStart();
 
-            /*
-             * Send some stats to the telemetry
-             */
-        while(path == -1){
+        /*
+         * Send some stats to the telemetry
+         */
+        while(path >= -1){
             telemetry.addData("Frame Count", phoneCam.getFrameCount());
             telemetry.addData("FPS", String.format("%.2f", phoneCam.getFps()));
             telemetry.addData("Total frame time ms", phoneCam.getTotalFrameTimeMs());
@@ -143,24 +142,6 @@ public class ShippingElementDetect extends ParentOrigin
             telemetry.update();
         }
         phoneCam.stopStreaming();
-        sleep(100);
-
-        //add code here
-        moveClaw(1);
-        Thread.sleep(100);
-        runAutoPath(path);
-
-
-        /*
-        //Carousel
-        turnHeadingNF(65);
-        Thread.sleep(300);
-        linearY(-.8, 800);
-        Thread.sleep(100);
-        startFlywheel(1, 1000);
-        Thread.sleep(300);
-        linearY(1, 1700);
-         */
 
     }
     public void runAutoPath(int path) throws InterruptedException{
@@ -173,13 +154,11 @@ public class ShippingElementDetect extends ParentOrigin
         //move forward by a little to be able to turn - SAME FOR ALL PATHS
         linearY(.25, 450);
         Thread.sleep(300);
+        turnHeadingNF(-125);
         int t, dir;
         if (path==2){
-            t = 670;
+            t = 660;
             dir = -1;
-
-            //turn
-            turnHeadingNF(-130);
 
             //forward code fast
             Thread.sleep(100);
@@ -190,8 +169,8 @@ public class ShippingElementDetect extends ParentOrigin
             moveArm(t, .45);
 
             //go inside the hub
-            //Thread.sleep(50);
-            linearY(dir*.1, 150);
+            Thread.sleep(10);
+            linearY(dir*.1, 375);
             Thread.sleep(100);
 
             //open the claw (drop freight)
@@ -199,9 +178,9 @@ public class ShippingElementDetect extends ParentOrigin
             Thread.sleep(100);
 
             //backward code (slow, then fast)
-            linearY(dir*-.20, 180);
+            linearY(dir*-.25, 150);
             Thread.sleep(100);
-            linearY(dir*-.125, 580);
+            linearY(dir*-.125, 400);
             Thread.sleep(100);
 
             //little back (dunno why?)
@@ -216,94 +195,9 @@ public class ShippingElementDetect extends ParentOrigin
             Thread.sleep(1000);
 
         }else if (path==1){
-            t = 600;
-            dir = -1;
 
-            //turn
-            turnHeadingNF(-125);
-
-            //forward code fast
-            Thread.sleep(100);
-            linearY(dir*.25, 475);
-            Thread.sleep(100);
-
-            //move the arm up to prepare for dropping
-            moveArm(t, .45);
-
-            //go inside the hub
-            Thread.sleep(10);
-            linearY(dir*.1, 375);
-            Thread.sleep(100);
-
-            //open the claw (drop freight)
-            resetClaw(200);
-            Thread.sleep(100);
-
-            //backward code (slow, then fast)
-            linearY(dir*-.25, 150);
-            Thread.sleep(100);
-            linearY(dir*-.125, 400);
-            Thread.sleep(100);
-
-            //little back (dunno why?)
-            linearY(dir*-.10, 300);
-
-            //close the claw back
-            closeClaw(300);
-            Thread.sleep(50);
-
-            //put the arm back down
-            moveArm(5, .1);
-            Thread.sleep(1000);
-
-            /*
-            linearY(dir*-.25, 150);
-            Thread.sleep(100);
-            turnHeadingNF(-165); // neg = right
-            Thread.sleep(100);
-            linearY(dir*-.5, 700); // full towards carousel
-             */
         }else{
 
-            t = 100;
-            dir = 1;
-
-            //turn
-            turnHeadingNF(35);
-
-            //forward code fast
-            Thread.sleep(100);
-            linearY(dir*.25, 475);
-            Thread.sleep(100);
-
-            //move the arm up to prepare for dropping
-            moveArm(t, .45);
-
-            //go inside the hub
-            Thread.sleep(10);
-            linearY(dir*.1, 375);
-            Thread.sleep(100);
-
-            //open the claw (drop freight)
-            resetClaw(200);
-            Thread.sleep(100);
-
-            //backward code (slow, then fast)
-            linearY(dir*-.25, 150);
-            Thread.sleep(100);
-            linearY(dir*-.125, 400);
-            Thread.sleep(100);
-
-            //little back (dunno why?)
-            linearY(dir*-.10, 300);
-
-            //close the claw back
-            closeClaw(300);
-            Thread.sleep(50);
-
-            //put the arm back down
-            moveArm(5, .1);
-            Thread.sleep(1000);
         }
     }
 
@@ -319,7 +213,7 @@ public class ShippingElementDetect extends ParentOrigin
 
             //320, 240
 
-            if (path == -1) {
+           // if (path == -1) {
                 d0 = greenDensityRatio(input, 140, 0, 70, 70);
                 d1 = greenDensityRatio(input, 110, 130, 80, 90);
                 d2 = greenDensityRatio(input, 90, 290, 80, 40);
@@ -341,7 +235,7 @@ public class ShippingElementDetect extends ParentOrigin
                         path = 2;
                     }
                 }
-            }
+            //}
 
 
             int c = 255;
@@ -410,7 +304,6 @@ public class ShippingElementDetect extends ParentOrigin
         @Override
         public void onViewportTapped()
         {
-
             viewportPaused = !viewportPaused;
 
             if(viewportPaused)

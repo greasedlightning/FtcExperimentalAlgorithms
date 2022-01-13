@@ -1,13 +1,12 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.junk;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
-import org.firstinspires.ftc.teamcode.Parent;
+import org.firstinspires.ftc.teamcode.LeoOpMode;
 
+@Disabled
 @Autonomous(name = "encoderTest", group = "autonomous")
-public class encoderTest extends ParentOrigin{
+public class encoderTest extends LeoOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
         initRobo();

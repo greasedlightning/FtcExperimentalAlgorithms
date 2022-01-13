@@ -1,6 +1,7 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.junk;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -10,6 +11,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
 // overall, the code I edited was a 1.5/10.
 
+@Disabled
 public class OdometryCordPos implements Runnable {
     // This assumes  that there are two separate motors for the x and y direction.
     // We might need to use the encoders from the wheels we already have to measure x and y displacement.

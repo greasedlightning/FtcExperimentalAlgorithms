@@ -19,13 +19,16 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.robotcore.internal.camera.delegating.DelegatingCaptureSequence;
+import org.firstinspires.ftc.teamcode.experimental.CompVision;
 
 import java.lang.Math;
 
 @com.qualcomm.robotcore.eventloop.opmode.TeleOp(name = "TeleOp", group = "TeleOp")
-// owo
 public class TeleOp extends OpMode{
-    ElapsedTime a = new ElapsedTime();
+
+    CompVision cam;
+
+    ElapsedTime time = new ElapsedTime();
     DcMotor topLeft;
     DcMotor topRight;
     DcMotor bottomLeft;
@@ -79,6 +82,7 @@ public class TeleOp extends OpMode{
         claw.setPower(0);
         flyWheel.setPower(0);
 
+        cam = new CompVision(hardwareMap);
     }
 
     //Movement functions
@@ -99,6 +103,7 @@ public class TeleOp extends OpMode{
     //Read encoders
     public void readEncoder(){
         telemetry.addData("armBase Encoder Ticks: ", armBase.getCurrentPosition());
+        cam.printDebug(telemetry);
         telemetry.update();
     }
 
@@ -194,22 +199,25 @@ public class TeleOp extends OpMode{
 
         */
         //Traditional Wheel Drive//
-        if(gamepad1.right_trigger == 1) {
+        if(gamepad1.right_trigger > 0.6f) {
             //move(angle, 0);
             topLeft.setPower     (leftY - leftX - rightX);
             topRight.setPower    (leftY + leftX + rightX);
             bottomLeft.setPower  (leftY + leftX - rightX);
             bottomRight.setPower (leftY + leftX + rightX);
-        }
-        else {
-            //Normal Movement
-            topLeft.setPower(    (leftY - leftX - rightX) * .5);
-            topRight.setPower(   (leftY + leftX + rightX) * .5);
-            bottomLeft.setPower( (leftY + leftX - rightX) * .5);
-            bottomRight.setPower((leftY + leftX + rightX) * .5);
+        } else if (gamepad1.left_trigger > 0.6f) {
+            topLeft.setPower(    (leftY - leftX - rightX) * .4);
+            topRight.setPower(   (leftY + leftX + rightX) * .4);
+            bottomLeft.setPower( (leftY + leftX - rightX) * .4);
+            bottomRight.setPower((leftY + leftX + rightX) * .4);
+        } else {
+            topLeft.setPower(    (leftY - leftX - rightX) * .8);
+            topRight.setPower(   (leftY + leftX + rightX) * .8);
+            bottomLeft.setPower( (leftY + leftX - rightX) * .8);
+            bottomRight.setPower((leftY + leftX + rightX) * .8);
         }
 
-        if (gamepad2.x){
+        if (gamepad2.x) {
             try {
                 resetClaw(200);
             } catch (InterruptedException e) {
@@ -243,7 +251,7 @@ public class TeleOp extends OpMode{
             armOffset = 0.5;
         }
 
-        armBase.setPower(armVal*armOffset);
+        armBase.setPower(-armVal*armOffset);
 
         if(valcR > 0){
             claw.setPower(valcR*-0.5);

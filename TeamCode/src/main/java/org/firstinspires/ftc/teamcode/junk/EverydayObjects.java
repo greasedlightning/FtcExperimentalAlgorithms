@@ -27,8 +27,9 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.firstinspires.ftc.teamcode.compvision;
+package org.firstinspires.ftc.teamcode.junk;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.RobotLog;
@@ -54,8 +55,8 @@ import java.util.List;
  * IMPORTANT: In order to use this OpMode, you need to obtain your own Vuforia license key as
  * is explained below.
  */
+@Disabled
 @TeleOp(name = "Everyday Objects", group = "Nick")
-//@Disabled
 public class EverydayObjects extends LinearOpMode {
     private static final String TFOD_MODEL_FILE = "/sdcard/FIRST/tflitemodels/detect.tflite";
     private static final String TFOD_MODEL_LABELS = "/sdcard/FIRST/tflitemodels/labelmap.txt";

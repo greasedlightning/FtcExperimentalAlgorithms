@@ -19,24 +19,20 @@
  * SOFTWARE.
  */
 
-package org.firstinspires.ftc.teamcode.compvision;
+package org.firstinspires.ftc.teamcode.experimental;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 
+import org.firstinspires.ftc.teamcode.junk.InternalCamera1Example;
 import org.opencv.core.Mat;
-import org.opencv.core.Point;
-import org.opencv.core.Scalar;
-import org.opencv.imgproc.Imgproc;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvPipeline;
 import org.openftc.easyopencv.OpenCvSwitchableWebcam;
 import org.openftc.easyopencv.OpenCvCamera;
-
-import java.nio.charset.StandardCharsets;
 
 @TeleOp
 public class ThreeWebcams extends LinearOpMode
