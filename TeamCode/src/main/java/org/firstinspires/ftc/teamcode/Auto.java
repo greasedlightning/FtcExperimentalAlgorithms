@@ -110,7 +110,7 @@ public class Auto extends LeoOpMode
         linearY(.25, 450);
         Thread.sleep(300);
         int t, dir;
-        if (path == 2) {
+        if (path == 0) {
             t = 670;
             dir = -1;
 
@@ -127,7 +127,7 @@ public class Auto extends LeoOpMode
 
             //go inside the hub
             //Thread.sleep(50);
-            linearY(dir * .1, 150);
+            linearY(dir * .1, 150 + 150);
             Thread.sleep(100);
 
             //open the claw (drop freight)
@@ -168,7 +168,7 @@ public class Auto extends LeoOpMode
 
             //go inside the hub
             Thread.sleep(10);
-            linearY(dir * .1, 375);
+            linearY(dir * .1, 375 + 150);
             Thread.sleep(100);
 
             //open the claw (drop freight)
@@ -217,7 +217,7 @@ public class Auto extends LeoOpMode
 
             //go inside the hub
             Thread.sleep(10);
-            linearY(dir * .1, 375);
+            linearY(dir * .1, 375 + 150);
             Thread.sleep(100);
 
             //open the claw (drop freight)
