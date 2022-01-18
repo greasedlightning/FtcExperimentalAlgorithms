@@ -85,21 +85,6 @@ public class TeleOp extends OpMode{
         cam = new CompVision(hardwareMap);
     }
 
-    //Movement functions
-    public void move(double angle, double rotation){
-        double x = Math.sin(angle);
-        double y = Math.cos(angle);
-        topLeft.setPower(y - x);
-        bottomRight.setPower(y - x);
-        topRight.setPower(y + x);
-        bottomLeft.setPower(y + x);
-    }
-    public void moveArm(double angle){
-        double x = Math.sin(angle);
-        double y = Math.cos(angle);
-        armBase.setPower(y-x);
-    }
-
     //Read encoders
     public void readEncoder(){
         telemetry.addData("armBase Encoder Ticks: ", armBase.getCurrentPosition());
@@ -107,32 +92,11 @@ public class TeleOp extends OpMode{
         telemetry.update();
     }
 
-    //double accel = 0.03;
-    double decel = 0.9;
-
-    double vTopLeft = 0;
-    double vTopRight = 0;
-    double vBottomLeft = 0;
-    double vBottomRight = 0;
-
-    double pow = 0.5;
     public void readEncoderArm(){
         telemetry.addData("Encoder Ticks: ", armBase.getCurrentPosition());
         telemetry.update();
     }
-    public void moveArm(int ticks, double power) throws InterruptedException{
-        armBase.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        //arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        armBase.setTargetPosition(ticks);
-        armBase.setPower(power);
-        armBase.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-        while (armBase.isBusy()) {
-            readEncoderArm();
-        }
-        //arm.setPower(0);
-        //arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-    }
     public void resetClaw(int time) throws InterruptedException {
         claw.setPower(0);
         claw.setPower(-1);
@@ -159,27 +123,6 @@ public class TeleOp extends OpMode{
         double armVal = gamepad2.right_stick_y;
         double valcR = gamepad2.right_trigger;
         double valcL = gamepad2.left_trigger;
-
-        /*
-        if (gamepad1.x) {
-            pow = 1.0;
-        }
-        if (gamepad1.a) {
-            pow = 0.5;
-        }
-        if (gamepad1.b) {
-            pow = 0.25;
-        }
-
-
-        pow = 0.5 + (gamepad1.right_trigger/2.0);
-
-        topLeft.setPower(    (leftY + leftX - rightX) * pow);
-        topRight.setPower(   (leftY - leftX + rightX) * pow);
-        bottomLeft.setPower( (leftY - leftX - rightX) * pow);
-        bottomRight.setPower((leftY + leftX + rightX) * pow);
-
-         */
 
         /*
         //Mecanum Wheel Drive//
@@ -217,19 +160,6 @@ public class TeleOp extends OpMode{
             bottomRight.setPower((leftY + leftX + rightX) * .8);
         }
 
-        if (gamepad2.x) {
-            try {
-                resetClaw(200);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-
-        }
-        if (gamepad2.y){
-
-        }
-
-
         //flyWheel set to gamepad 2 right bumper
         if(gamepad2.right_bumper){
             flyWheel.setPower(1);
@@ -240,8 +170,7 @@ public class TeleOp extends OpMode{
         else{
             flyWheel.setPower(0);
         }
-
-
+        
         //Claw and arm
         double armOffset;
         if(gamepad2.right_trigger > 0){

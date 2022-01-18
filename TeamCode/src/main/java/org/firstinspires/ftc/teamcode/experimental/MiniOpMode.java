@@ -10,12 +10,13 @@ public class MiniOpMode extends LinearOpMode {
     DcMotor topLeft;
 
     public void initRobo() {
-        topLeft = hardwareMap.dcMotor.get("motor");
+        topLeft = hardwareMap.dcMotor.get("bottomRight"); //Insert name ordering to config
 
         topLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         topLeft.setDirection(DcMotorSimple.Direction.REVERSE);
 
         topLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        topLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         topLeft.setPower(0);
     }
     public void readEncoder(){
@@ -31,25 +32,18 @@ public class MiniOpMode extends LinearOpMode {
         topLeft.setPower(power);
 
         topLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        while (topLeft.isBusy()){
+
+        while (topLeft.isBusy() && opModeIsActive()){
             readEncoder();
         }
 
         topLeft.setPower(0);
-
         topLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
     @Override
     public void runOpMode() throws InterruptedException {
         initRobo();
         waitForStart();
-        while(true) {
-            try {
-                moveRobot(100, .2);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-
-        }
+        //moveArm(1000, 1);
     }
 }
