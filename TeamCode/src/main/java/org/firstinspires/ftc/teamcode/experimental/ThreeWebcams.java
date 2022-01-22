@@ -74,10 +74,12 @@ public class ThreeWebcams extends LinearOpMode
             public void onOpened()
             {
                 String name = switchableWebcam.getActiveCamera().getDeviceName();
+
                 int id = Integer.valueOf(name.charAt(7));
 
                 switchableWebcam.setPipeline(camPipeline[id]);
                 switchableWebcam.startStreaming(320, 240, OpenCvCameraRotation.UPRIGHT);
+
             }
 
             @Override

@@ -30,6 +30,12 @@ public abstract class LeoOpMode extends LinearOpMode{
     Orientation lastAngles;
     double globalAngle;
     PIDControl pid;
+
+    final double RADIUS=2;
+    final double PI=3.1415926535;
+    final double CIRCUMFERENCE = 2*PI*RADIUS;
+    final int TPR = 1120;
+
     public void initRobo(){
         //Control Hub
         topLeft = hardwareMap.dcMotor.get("topLeft");           //1 Motor
@@ -125,11 +131,8 @@ public abstract class LeoOpMode extends LinearOpMode{
         Thread.sleep(time);
         claw.setPower(0);
     }
-    public void closeClaw(int time) throws InterruptedException {
-        claw.setPower(0);
+    public void closeClaw() throws InterruptedException {
         claw.setPower(1);
-        Thread.sleep(time);
-        claw.setPower(0);
     }
 
     //Gyro
@@ -172,15 +175,7 @@ public abstract class LeoOpMode extends LinearOpMode{
     //experimental code with PID control ----------------------------
     public double getAngle(){
         Orientation angles = this.imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-        double deltaAngle = angles.firstAngle - this.lastAngles.firstAngle;
-
-        if (deltaAngle < -180)
-            deltaAngle += 360;
-        else if (deltaAngle > 180)
-            deltaAngle -= 360;
-        this.globalAngle += deltaAngle;
-        this.lastAngles = angles;
-        return this.globalAngle;
+        return angles.firstAngle;
     }
     //remember to set setpoint
     public double[] calcCorrection(double power, double angle){
@@ -273,16 +268,6 @@ public abstract class LeoOpMode extends LinearOpMode{
         bottomRight.setPower(bRpow);
     }
 
-    //Forward/Backward
-    public void linearY(double pow, int time) throws InterruptedException {
-        setSinglePow(-pow);
-        readEncoder();
-
-        Thread.sleep(time);
-
-        setSinglePow(0);
-    }
-
     public void startFlywheel(double pow, int time) throws InterruptedException {
         flyWheel.setPower(pow);
 
@@ -319,76 +304,22 @@ public abstract class LeoOpMode extends LinearOpMode{
     }
 
     //Sets all target positions
-    public void setAllMTargets(int ticks){
-        topLeft.setTargetPosition(ticks);
-        topRight.setTargetPosition(ticks);
-        bottomLeft.setTargetPosition(ticks);
-        bottomRight.setTargetPosition(ticks);
+    public void setAllMTargets(int left, int right){
+        topLeft.setTargetPosition(left);
+        topRight.setTargetPosition(right);
+        bottomLeft.setTargetPosition(left);
+        bottomRight.setTargetPosition(right);
     }
 
-    public void hardReset(){
-        topLeft.setPower(0);
-        topRight.setPower(0);
-        bottomLeft.setPower(0);
-        bottomRight.setPower(0);
-
-        topLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        topRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        bottomLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        bottomRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-    }
-
-    //Rotations based on Encoder (experimental replacement for Gyro)
-    //Note: ticks per revolution: 537.6 or ~540
-    //Hypothesis: ~540 = 90 degrees
-    public void encoderRotation(int angle){
-        boolean allIsBusy = topLeft.isBusy() || topRight.isBusy() || bottomLeft.isBusy() || bottomRight.isBusy();
-        int ticks = angle * 6;
-        double pow = 0.5;
-
-        if(angle > 0){
-            setAllMTargets(ticks);
-            setEachPow(pow, -pow, pow, -pow);
-
-            topLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            topRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            bottomLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            bottomRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            while(allIsBusy && opModeIsActive()) {
-                readEncoder();
-            }
-
-            hardReset();
-        }
-        else if(angle < 0) {
-            setAllMTargets(ticks);
-            setEachPow(-pow, pow, -pow, pow);
-
-            topLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            topRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            bottomLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            bottomRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            while(allIsBusy && opModeIsActive()) {
-                readEncoder();
-            }
-
-            hardReset();
-        }
-        else{
-            telemetry.addData("Angle value not recognized(debug): ", angle);
-        }
-
-    }
 
     //Linear Encoder movement
-    public void moveRobot(int ticks, double power) throws InterruptedException{
-        boolean allIsBusy = topLeft.isBusy() || topRight.isBusy() || bottomLeft.isBusy() || bottomRight.isBusy();
+    public void moveRobot(int left, int right, double power) throws InterruptedException{
         topLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         topRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         bottomLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         bottomRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-        setAllMTargets(ticks);
+        setAllMTargets(-left, -right);
 
         topLeft.setPower(power);
         topRight.setPower(power);
@@ -400,11 +331,35 @@ public abstract class LeoOpMode extends LinearOpMode{
         bottomLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         bottomRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-        while(allIsBusy && opModeIsActive()) {
-            readEncoder();
+        while((topLeft.isBusy() || topRight.isBusy() || bottomLeft.isBusy() || bottomRight.isBusy()) && opModeIsActive()) {
         }
+        topLeft.setPower(0);
+        topRight.setPower(0);
+        bottomLeft.setPower(0);
+        bottomRight.setPower(0);
 
-        hardReset();
+        topLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        topRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        bottomLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        bottomRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
 
+    public void linearY(double inches, double power) throws InterruptedException {
+        int ticks = (int)(inches/CIRCUMFERENCE*TPR);
+        moveRobot(ticks, ticks, power);
+    }
+
+    public void turnHeading(int angle) throws InterruptedException {
+        double power = .4;
+        double m_P = 5;
+        double tol = 2;
+        double err = (angle-this.getAngle());
+        while(opModeIsActive() && Math.abs(err)>tol){
+            int ticks = (int)(m_P*err);
+            moveRobot(-ticks, ticks, power);
+            err = (angle-this.getAngle());
+            telemetry.addLine(String.valueOf(this.getAngle()));
+            telemetry.update();
+        }
+    }
 }

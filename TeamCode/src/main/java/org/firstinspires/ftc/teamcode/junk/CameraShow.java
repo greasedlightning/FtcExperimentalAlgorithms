@@ -187,7 +187,7 @@ public class CameraShow extends LeoOpMode
             linearY(dir*-.10, 300);
 
             //close the claw back
-            closeClaw(300);
+            //closeClaw(300);
             Thread.sleep(50);
 
             //put the arm back down
