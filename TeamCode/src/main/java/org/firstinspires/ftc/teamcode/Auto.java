@@ -38,29 +38,14 @@ import org.openftc.easyopencv.OpenCvPipeline;
 public class Auto extends LeoOpMode
 {
     CompVision cam;
-
     private int path = -1;
-
-    private float c0;
-    private float c1;
-    private float c2;
-
-    private boolean armOn = false;
     public int ticks = 0;
-
-
-    public void armOn(int ticks){
-        this.ticks = ticks;
-    }
-    public void armOff(){
-        ticks = -1;
-    }
 
     @Override
     public void runOpMode() throws InterruptedException
     {
         initRobo();
-        cam = new CompVision(hardwareMap);
+        cam = new CompVision(hardwareMap, 2);
         telemetry.addLine("Waiting for start");
         telemetry.update();
 
@@ -73,33 +58,16 @@ public class Auto extends LeoOpMode
              * Send some stats to the telemetry
              */
         while(path == -1){
-            cam.printDebug(telemetry);
+            cam.printDebugCam1(telemetry);
             cam.printStats(telemetry);
             path = cam.getPath();
             telemetry.addLine("Path chosen: " + path);
             telemetry.update();
         }
-        cam.stop();
+        cam.stop(0);
         sleep(100);
 
-
-
-
-
-
-
        runAutoPath(path);
-
-        /*
-        //Carousel
-        turnHeadingNF(65);
-        Thread.sleep(300);
-        linearY(-.8, 800);
-        Thread.sleep(100);
-        startFlywheel(1, 1000);
-        Thread.sleep(300);
-        linearY(1, 1700);
-         */
     }
     public void runAutoPath(int path) throws InterruptedException {
         int t, dir;

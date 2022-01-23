@@ -82,13 +82,13 @@ public class TeleOp extends OpMode{
         claw.setPower(0);
         flyWheel.setPower(0);
 
-        cam = new CompVision(hardwareMap);
+        cam = new CompVision(hardwareMap, 2);
     }
 
     //Read encoders
     public void readEncoder(){
         telemetry.addData("armBase Encoder Ticks: ", armBase.getCurrentPosition());
-        cam.printDebug(telemetry);
+        cam.printDebugCam1(telemetry);
         telemetry.update();
     }
 
