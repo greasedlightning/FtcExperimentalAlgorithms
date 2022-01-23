@@ -45,7 +45,7 @@ public class Auto extends LeoOpMode
     public void runOpMode() throws InterruptedException
     {
         initRobo();
-        cam = new CompVision(hardwareMap, 2);
+        cam = new CompVision(hardwareMap, 1);
         telemetry.addLine("Waiting for start");
         telemetry.update();
 
