@@ -38,29 +38,14 @@ import org.openftc.easyopencv.OpenCvPipeline;
 public class Auto extends LeoOpMode
 {
     CompVision cam;
-
     private int path = -1;
-
-    private float c0;
-    private float c1;
-    private float c2;
-
-    private boolean armOn = false;
     public int ticks = 0;
-
-
-    public void armOn(int ticks){
-        this.ticks = ticks;
-    }
-    public void armOff(){
-        ticks = -1;
-    }
 
     @Override
     public void runOpMode() throws InterruptedException
     {
         initRobo();
-        cam = new CompVision(hardwareMap);
+        cam = new CompVision(hardwareMap, 1);
         telemetry.addLine("Waiting for start");
         telemetry.update();
 
@@ -73,164 +58,66 @@ public class Auto extends LeoOpMode
              * Send some stats to the telemetry
              */
         while(path == -1){
-            cam.printDebug(telemetry);
+            cam.printDebugCam1(telemetry);
             cam.printStats(telemetry);
             path = cam.getPath();
             telemetry.addLine("Path chosen: " + path);
             telemetry.update();
         }
-        cam.stop();
+        cam.stop(0);
         sleep(100);
-        //while(true){
-        //    readEncoder();
-        //}
-        //add code here
-        //moveClaw(1);
-        Thread.sleep(100);
-        //runAutoPath(path);
 
+       runAutoPath(path);
     }
     public void runAutoPath(int path) throws InterruptedException {
-        //move forward by a little to be able to turn - SAME FOR ALL PATHS
+        int t, dir;
+        double forward = 19.701-2-1-10;
+        double angle = 37.5;
+        double ang, add;
         closeClaw();
         linearY(3, .5);
-        Thread.sleep(100);
-        int t, dir;
-        double angle = 37.5;
-        double forward = 19.7-2-1;
-
+        Thread.sleep(300);
         if (path == 2) {
-            t = 670;
+            t = 700;
             dir = -1;
-            //turn
-            double ang = (path>2)? (dir*(90+angle)) : angle;
-
-            turnHeading(ang);
-
-            //forward code fast
-            Thread.sleep(100);
-            linearY(dir*forward, .5);
-            Thread.sleep(100);
-
-            //move the arm up to prepare for dropping
-            moveArm(t, .5);
-
-            //go inside the hub
-
-            linearY(dir * .1, 150 + 150);
-            Thread.sleep(100);
-
-            //open the claw (drop freight)
-            resetClaw(200);
-            Thread.sleep(100);
-
-            //forward code fast
-            Thread.sleep(100);
-            linearY(forward/2, .5);
-            Thread.sleep(100);
-
-            //reset robot
-            //close the claw back
-            turnHeading(-90);
-
-            Thread.sleep(100);
-            closeClaw();
-            Thread.sleep(100);
-            resetClaw(0);
-
-            //put the arm back down
-            moveArm(100, .2);
-            Thread.sleep(1000);
-
-        } else if (path == 1) {
-            t = 600;
+            ang = -90-angle-15;
+            add = 4;
+        }else if(path == 1){
+            t = 730;
             dir = -1;
-
-            //turn
-            turnHeadingNF(-125);
-
-            //forward code fast
-            Thread.sleep(100);
-            linearY(dir * .25, 475);
-            Thread.sleep(100);
-
-            //move the arm up to prepare for dropping
-            moveArm(t, .45);
-
-            //go inside the hub
-            Thread.sleep(10);
-            linearY(dir * .1, 375 + 150);
-            Thread.sleep(100);
-
-            //open the claw (drop freight)
-            resetClaw(200);
-            Thread.sleep(100);
-
-            //backward code (slow, then fast)
-            linearY(dir * -.25, 150);
-            Thread.sleep(100);
-            linearY(dir * -.125, 400);
-            Thread.sleep(100);
-
-            //little back (dunno why?)
-            linearY(dir * -.10, 300);
-
-            //close the claw back
-            closeClaw();
-            Thread.sleep(50);
-
-            //put the arm back down
-            moveArm(5, .1);
-            Thread.sleep(1000);
-
-            /*
-            linearY(dir*-.25, 150);
-            Thread.sleep(100);
-            turnHeadingNF(-165); // neg = right
-            Thread.sleep(100);
-            linearY(dir*-.5, 700); // full towards carousel
-             */
-        } else {
-
-            t = 100;
+            ang = -90-angle-15;
+            add = 3.3;
+        }else{
             dir = 1;
-
-            //turn
-            turnHeadingNF(35);
-
-            //forward code fast
-            Thread.sleep(100);
-            linearY(dir * .25, 475);
-            Thread.sleep(100);
-
-            //move the arm up to prepare for dropping
-            moveArm(t, .45);
-
-            //go inside the hub
-            Thread.sleep(10);
-            linearY(dir * .1, 375 + 150);
-            Thread.sleep(100);
-
-            //open the claw (drop freight)
-            resetClaw(200);
-            Thread.sleep(100);
-
-            //backward code (slow, then fast)
-            linearY(dir * -.25, 150);
-            Thread.sleep(100);
-            linearY(dir * -.125, 400);
-            Thread.sleep(100);
-
-            //little back (dunno why?)
-            linearY(dir * -.10, 300);
-
-            //close the claw back
-            closeClaw();
-            Thread.sleep(50);
-
-            //put the arm back down
-            moveArm(5, .1);
-            Thread.sleep(1000);
+            t = 125;
+            ang = angle;
+            add = 0;
         }
+        //turn to point towards hub
+        turnHeading(ang);
+        Thread.sleep(100);
+        // go near the hub
+        linearY(dir*forward, .4);
+        if (path<=1) {
+            Thread.sleep(100);
+            moveArm(t, .5);
+        }
+        Thread.sleep(100);
+        linearY(dir*5, .2);
+        if (path==2){
+            Thread.sleep(100);
+            moveArm(t, .5);
+        }
+        Thread.sleep(100);
+        resetClaw(300);
+        Thread.sleep(100);
+        linearY(dir*-(forward+add)/2, .5);
+        Thread.sleep(100);
+        turnHeading(-90);
+        Thread.sleep(50);
+        moveArm(200, .5);
+        Thread.sleep(50);
+        linearY(-50, .8);
+
     }
 }
