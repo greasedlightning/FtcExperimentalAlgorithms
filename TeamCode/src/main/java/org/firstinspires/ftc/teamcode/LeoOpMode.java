@@ -53,11 +53,6 @@ public abstract class LeoOpMode extends LinearOpMode{
         bottomLeft.setDirection(DcMotorSimple.Direction.REVERSE);
         bottomRight.setDirection(DcMotorSimple.Direction.FORWARD);
 
-        topLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        topRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        bottomLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        bottomRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
         topLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         topRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         bottomLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -67,6 +62,11 @@ public abstract class LeoOpMode extends LinearOpMode{
         topRight.setPower(0);
         bottomLeft.setPower(0);
         bottomRight.setPower(0);
+        
+        topLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        topRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        bottomLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        bottomRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         //Expansion Hub
         claw = hardwareMap.crservo.get("claw");                 //1 CR Servo
@@ -135,42 +135,6 @@ public abstract class LeoOpMode extends LinearOpMode{
         claw.setPower(1);
     }
 
-    //Gyro
-    public void turnHeading(double angle) throws InterruptedException {
-        double subAng = angle - 2;
-        double supAng = angle + 2;
-
-        while (opModeIsActive()) {
-            Orientation angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-            telemetry.addData("topLeft Encoder Ticks: ", topLeft.getCurrentPosition());
-            telemetry.addData("topRight Encoder Ticks: ", topRight.getCurrentPosition());
-            telemetry.addData("bottomLeft Encoder Ticks: ", bottomLeft.getCurrentPosition());
-            telemetry.addData("bottomRight Encoder Ticks: ", bottomRight.getCurrentPosition());
-            telemetry.update();
-            if (angle < angles.firstAngle) {
-                topLeft.setPower(-0.05);
-                topRight.setPower(0.05);
-                bottomLeft.setPower(-0.05);
-                bottomRight.setPower(0.05);
-                if (subAng < angles.firstAngle && angles.firstAngle < supAng) {
-                    break;
-                }
-            }
-            else if (angle > angles.firstAngle) {
-                topLeft.setPower(0.05);
-                topRight.setPower(-0.05);
-                bottomLeft.setPower(0.05);
-                bottomRight.setPower(-0.05);
-                if (subAng < angles.firstAngle && angles.firstAngle < supAng) {
-                    break;
-                }
-            }
-        }
-        topLeft.setPower(0);
-        topRight.setPower(0);
-        bottomLeft.setPower(0);
-        bottomRight.setPower(0);
-    }
 
     //experimental code with PID control ----------------------------
     public double getAngle(){
@@ -290,7 +254,7 @@ public abstract class LeoOpMode extends LinearOpMode{
         telemetry.update();
     }
     public void moveArm(int ticks, double power) throws InterruptedException{
-        armBase.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        //armBase.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         //arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         armBase.setTargetPosition(ticks);
         armBase.setPower(power);
@@ -299,8 +263,8 @@ public abstract class LeoOpMode extends LinearOpMode{
         while (armBase.isBusy()) {
             readEncoderArm();
         }
-        armBase.setPower(0);
-        armBase.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        //armBase.setPower(0);
+        //armBase.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
 
     //Sets all target positions
@@ -331,7 +295,8 @@ public abstract class LeoOpMode extends LinearOpMode{
         bottomLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         bottomRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-        while((topLeft.isBusy() || topRight.isBusy() || bottomLeft.isBusy() || bottomRight.isBusy()) && opModeIsActive()) {
+        while(topLeft.isBusy() || topRight.isBusy() || bottomLeft.isBusy() || bottomRight.isBusy()) {
+
         }
         topLeft.setPower(0);
         topRight.setPower(0);
@@ -349,7 +314,7 @@ public abstract class LeoOpMode extends LinearOpMode{
         moveRobot(ticks, ticks, power);
     }
 
-    public void turnHeading(int angle) throws InterruptedException {
+    public void turnHeading(double angle) throws InterruptedException {
         double power = .4;
         double m_P = 5;
         double tol = 2;

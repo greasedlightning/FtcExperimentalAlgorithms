@@ -83,8 +83,12 @@ public class Auto extends LeoOpMode
         sleep(100);
 
 
-        //runAutoPath(path);
-        turnHeading(90);
+
+
+
+
+
+       runAutoPath(path);
 
         /*
         //Carousel
@@ -98,50 +102,54 @@ public class Auto extends LeoOpMode
          */
     }
     public void runAutoPath(int path) throws InterruptedException {
-        //                turnHeadingNF(35);
-        //
-        //            }
-        //            else{
-        //                turnHeadingNF(-125);
-        //            }
-        //move forward by a little to be able to turn - SAME FOR ALL PATHS
-
         int t, dir;
-        double forward = 19.701-2-1;
+        double forward = 19.701-2-1-10;
         double angle = 37.5;
-        double ang;
+        double ang, add;
         closeClaw();
-        Thread.sleep(100);
         linearY(3, .5);
         Thread.sleep(300);
-        if (path == 0) {
-            t = 680;
+        if (path == 2) {
+            t = 700;
             dir = -1;
-            ang = -90-angle;
+            ang = -90-angle-15;
+            add = 4;
         }else if(path == 1){
-            t = 600;
+            t = 730;
             dir = -1;
-            ang = -90-angle;
+            ang = -90-angle-15;
+            add = 3.3;
         }else{
             dir = 1;
-            t = 100;
+            t = 125;
             ang = angle;
+            add = 0;
         }
+        //turn to point towards hub
         turnHeading(ang);
         Thread.sleep(100);
+        // go near the hub
         linearY(dir*forward, .4);
+        if (path<=1) {
+            Thread.sleep(100);
+            moveArm(t, .5);
+        }
         Thread.sleep(100);
-        moveArm(t, .5);
-        Thread.sleep(100);
-        linearY(3, .2);
+        linearY(dir*5, .2);
+        if (path==2){
+            Thread.sleep(100);
+            moveArm(t, .5);
+        }
         Thread.sleep(100);
         resetClaw(300);
         Thread.sleep(100);
-        linearY(forward/2, .5);
+        linearY(dir*-(forward+add)/2, .5);
         Thread.sleep(100);
         turnHeading(-90);
         Thread.sleep(50);
         moveArm(200, .5);
+        Thread.sleep(50);
+        linearY(-50, .8);
 
     }
 }
