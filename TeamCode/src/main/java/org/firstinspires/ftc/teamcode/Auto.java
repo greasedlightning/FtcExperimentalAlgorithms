@@ -69,6 +69,7 @@ public class Auto extends LeoOpMode
             cam.printDebugCam1(telemetry);
             cam.printStats(telemetry);
             path = cam.getPath();
+            if (path > 1) { path = 2 - path; }
             telemetry.addLine("Path chosen: " + path);
             telemetry.update();
         }
@@ -79,10 +80,10 @@ public class Auto extends LeoOpMode
             case 0:
                 runLeft(1);
                 break;
-            case 1:
+            case 2:
                 runLeft(-1);
                 break;
-            case 2:
+            case 1:
                 runRight(1);
                 break;
             case 3:
