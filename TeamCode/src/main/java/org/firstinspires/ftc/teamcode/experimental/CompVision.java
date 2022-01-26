@@ -18,6 +18,7 @@ import org.openftc.easyopencv.OpenCvInternalCamera;
 import org.openftc.easyopencv.OpenCvPipeline;
 
 import java.util.ArrayList;
+import java.util.Vector;
 
 public class CompVision {
     private OpenCvCamera[] cams;
@@ -30,13 +31,13 @@ public class CompVision {
 
         if (camNum > 1) {
             int[] viewportContainerIds = OpenCvCameraFactory.getInstance()
-                  .splitLayoutForMultipleViewports(
-                          monId, //The container we're splitting
-                          camNum, //The number of sub-containers to create
-                          OpenCvCameraFactory.ViewportSplitMethod.VERTICALLY
-                  ); //Whether to split the container vertically or horizontally
+                    .splitLayoutForMultipleViewports(
+                            monId, //The container we're splitting
+                            camNum, //The number of sub-containers to create
+                            OpenCvCameraFactory.ViewportSplitMethod.VERTICALLY
+                    ); //Whether to split the container vertically or horizontally
             for (int i = 0; i < camNum; i++) {
-                cams[i] = OpenCvCameraFactory.getInstance().createWebcam(map.get(WebcamName.class, "Webcam " + (i+1)), viewportContainerIds[i]);
+                cams[i] = OpenCvCameraFactory.getInstance().createWebcam(map.get(WebcamName.class, "Webcam " + (i + 1)), viewportContainerIds[i]);
             }
 
         } else {
@@ -44,30 +45,29 @@ public class CompVision {
         }
 
         if (camNum > 0) {
-            cams[0].openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener()
-            {
+            cams[0].openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
                 @Override
-                public void onOpened()
-                {
+                public void onOpened() {
                     cams[0].setPipeline(new ShippingElementPipeLine());
                     cams[0].startStreaming(320, 240, OpenCvCameraRotation.UPRIGHT);
                 }
 
                 @Override
-                public void onError(int errorCode) {}
+                public void onError(int errorCode) {
+                }
             });
             if (camNum > 1) {
-                cams[1].openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener()
-                {
+                cams[1].openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
                     @Override
-                    public void onOpened()
-                    {
+                    public void onOpened() {
                         cams[1].setPipeline(new CubesPipeLine());
-                        cams[1].startStreaming(320, 240, OpenCvCameraRotation.UPSIDE_DOWN);
+                        cams[1].startStreaming(320, 240, OpenCvCameraRotation.UPRIGHT);
                     }
 
                     @Override
-                    public void onError(int errorCode) {}
+                    public void onError(int errorCode) {
+
+                    }
                 });
             }
         }
@@ -75,11 +75,15 @@ public class CompVision {
 
     public void printStats(Telemetry t) {
         for (int i = 0; i < camNum; i++) {
-            t.addLine("Cam" + (i+1));
-            t.addData("Frame Count", cams[i].getFrameCount());
-            t.addData("FPS", String.format("%.2f", cams[i].getFps()));
-            t.addData("Total frame time ms", cams[i].getTotalFrameTimeMs());
-            t.addData("Pipeline time ms", cams[i].getPipelineTimeMs());
+            try {
+                t.addLine("Cam" + (i + 1));
+                t.addData("Frame Count", cams[i].getFrameCount());
+                t.addData("FPS", String.format("%.2f", cams[i].getFps()));
+                t.addData("Total frame time ms", cams[i].getTotalFrameTimeMs());
+                t.addData("Pipeline time ms", cams[i].getPipelineTimeMs());
+            } catch (Exception e) {
+                t.addLine("Cam" + (i + 1) + " not available");
+            }
         }
     }
 
@@ -92,24 +96,63 @@ public class CompVision {
         return path;
     }
 
+
+    private ArrayList<Vector2> cubes = new ArrayList<>();
+
+    public Vector2[] getCubes() {
+        Vector2[] result = new Vector2[cubes.size()];
+        for (int i = 0; i < result.length; i++) {
+            result[i] = cubes.get(i);
+        }
+        for (int i = 0; i < result.length; i++) {
+            Vector2 max = result[i];
+            int maxI = i;
+            for (int j = i+1; j < result.length; j++) {
+                Vector2 temp = result[j];
+                if (temp.x > max.x) {
+                    max = temp;
+                    maxI = j;
+                }
+            }
+            result[maxI] = result[i];
+            result[i] = max;
+        }
+        return result;
+    }
+
+
     public void printDebugCam1(Telemetry t) {
         t.addLine("d0: " + d0);
         t.addLine("d1: " + d1);
         t.addLine("d2: " + d2);
         t.addLine("Path chosen: " + path);
     }
+
     public void stopAll() {
         for (int i = 0; i < camNum; i++) {
             cams[i].stopStreaming();
         }
     }
+
     public void stop(int i) {
         cams[i].stopStreaming();
     }
 
+    public void changePipeLine(int i, int pipeline) {
+        OpenCvCamera cam = cams[i];
+        switch (pipeline) {
+            case 0:
+                cam.setPipeline(new ShippingElementPipeLine());
+                break;
+            case 1:
+                cam.setPipeline(new CubesPipeLine());
+                break;
+            case 2:
+                cam.setPipeline(new TestPipeLine());
+        }
+    }
     //320, 240
-    class ShippingElementPipeLine extends OpenCvPipeline
-    {
+    class ShippingElementPipeLine extends OpenCvPipeline {
         @Override
         public Mat processFrame(Mat input) {
             choosePath(input, false);
@@ -159,7 +202,7 @@ public class CompVision {
                 }
             }
 
-            return 100 + (g*3 - r - b)/3.0f/tot;
+            return 100 + (g * 3 - r - b) / 3.0f / tot;
         }
     }
 
@@ -171,7 +214,7 @@ public class CompVision {
             int iLowH = 0;
             int iHighH = 255;
             int iLowS = 0;
-            int iHighS = 252;
+            int iHighS = 11/6;
             int iLowV = 0;
             int iHighV = 255;
 
@@ -181,107 +224,95 @@ public class CompVision {
 
             Core.inRange(hsv, new Scalar(iLowH, iLowS, iLowV), new Scalar(iHighH, iHighS, iHighV), imgThresholded); //Threshold the image
 
-            Imgproc.erode(imgThresholded, imgThresholded, Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(5, 5)) );
-            Imgproc.dilate( imgThresholded, imgThresholded, Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(5, 5)) );
+            Imgproc.erode(imgThresholded, imgThresholded, Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(5, 5)));
+            Imgproc.dilate(imgThresholded, imgThresholded, Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(5, 5)));
 
-            Imgproc.dilate( imgThresholded, imgThresholded, Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(5, 5)) );
-            Imgproc.erode(imgThresholded, imgThresholded, Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(5, 5)) );
+            Imgproc.dilate(imgThresholded, imgThresholded, Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(5, 5)));
+            Imgproc.erode(imgThresholded, imgThresholded, Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(5, 5)));
 
             Imgproc.resize(imgThresholded, imgThresholded, new Size(80, 60));
 
-            getCubes(imgThresholded, 20);
+            cubes = getCubes(imgThresholded, 20);
 
             return imgThresholded;
         }
 
 
+        public ArrayList<Vector2> getCubes(Mat src, int tolerance) {
+            ArrayList<Vector2> positions = new ArrayList<Vector2>();
+            for (int x = 0; x < src.rows(); x++) {
+                for (int y = 0; y < src.cols(); y++) {
 
+                    Vector2 p = new Vector2(0, 0);
+                    fill(src, p, x, y);
 
-    public ArrayList<Vector2> getCubes(Mat src, int tolerance) {
-        ArrayList<Vector2> positions = new ArrayList<Vector2>();
-        for (int x = 0; x < src.rows(); x++) {
-            for (int y = 0; y < src.cols(); y++) {
-
-                Vector2 p = new Vector2(0, 0);
-                fill(src, p, x, y);
-
-                if (p.c > tolerance) {
-                    positions.add(p);
-                    p.clean();
+                    if (p.c > tolerance) {
+                        positions.add(p);
+                        p.clean();
+                    }
                 }
             }
-        }
-        for (Vector2 p : positions) {
-            putDot(src, p, p.x, p.y);
-        }
-        return positions;
-    }
-
-
-    public boolean valid(Mat src, int x, int y) {
-        return !(x < 0 || y < 0 || x >= src.rows() || y >= src.cols() || src.get(x, y) == null);
-    }
-
-    public void fill(Mat src, Vector2 p, int x, int y) {
-        if (!valid(src, x, y) || src.get(x, y)[0] > 150) { return; }
-
-        src.put(x, y, 200);
-        p.x += x;
-        p.y += y;
-        p.c++;
-
-        int tol = 2;
-        fill(src, p, x+tol, y);
-        fill(src, p, x, y+tol);
-        fill(src, p, x, y-tol);
-        fill(src, p, x-tol, y);
-
-        fill(src, p, x+1, y);
-        fill(src, p, x, y+1);
-        fill(src, p, x, y-1);
-        fill(src, p, x-1, y);
-    }
-
-    public void putDot(Mat src, Vector2 p, int x, int y) {
-        final int dist = 1;
-
-        if (Math.abs(p.x-x) > dist || Math.abs(p.y-y) > dist || src.get(x, y)[0] < 10) {
-            return;
-        }
-
-        src.put(x, y, new double[]{0});
-
-        if (x > 0) {
-            putDot(src, p, x-1, y);
-        }
-        if (y > 0) {
-            putDot(src, p, x, y-1);
-        }
-        if (x < src.rows() - 1) {
-            putDot(src, p, x+1, y);
-        }
-        if (y < src.cols() - 1) {
-            putDot(src, p, x, y+1);
-        }
-    }
-
-
-    private class Vector2 {
-            public int x;
-            public int y;
-            public int c;
-            public Vector2(int _x, int _y) {
-                x = _x;
-                y = _y;
-                c = 0;
+            for (Vector2 p : positions) {
+                putDot(src, p, p.x, p.y);
             }
-            public void clean() {
-                if (c != 0) {
-                    x /= c;
-                    y /= c;
+            return positions;
+        }
 
-                }
+
+        public boolean valid(Mat src, int x, int y) {
+            return !(x < 0 || y < 0 || x >= src.rows() || y >= src.cols() || src.get(x, y) == null);
+        }
+
+        public void fill(Mat src, Vector2 p, int x, int y) {
+            if (!valid(src, x, y) || src.get(x, y)[0] > 150) {
+                return;
             }
+
+            src.put(x, y, 200);
+            p.x += x;
+            p.y += y;
+            p.c++;
+
+            int tol = 3;
+            fill(src, p, x + tol, y);
+            fill(src, p, x, y + tol);
+            fill(src, p, x, y - tol);
+            fill(src, p, x - tol, y);
+
+            fill(src, p, x + 1, y);
+            fill(src, p, x, y + 1);
+            fill(src, p, x, y - 1);
+            fill(src, p, x - 1, y);
+        }
+
+        public void putDot(Mat src, Vector2 p, int x, int y) {
+            final int dist = 1;
+
+            if (Math.abs(p.x - x) > dist || Math.abs(p.y - y) > dist || src.get(x, y)[0] < 10) {
+                return;
+            }
+
+            src.put(x, y, new double[]{0});
+
+            if (x > 0) {
+                putDot(src, p, x - 1, y);
+            }
+            if (y > 0) {
+                putDot(src, p, x, y - 1);
+            }
+            if (x < src.rows() - 1) {
+                putDot(src, p, x + 1, y);
+            }
+            if (y < src.cols() - 1) {
+                putDot(src, p, x, y + 1);
+            }
+        }
+    }
+    class TestPipeLine extends OpenCvPipeline {
+
+        @Override
+        public Mat processFrame(Mat input) {
+            return input;
         }
     }
 }

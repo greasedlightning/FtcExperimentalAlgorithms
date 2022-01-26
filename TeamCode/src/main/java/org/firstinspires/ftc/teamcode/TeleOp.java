@@ -20,6 +20,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.robotcore.internal.camera.delegating.DelegatingCaptureSequence;
 import org.firstinspires.ftc.teamcode.experimental.CompVision;
+import org.firstinspires.ftc.teamcode.experimental.Vector2;
 
 import java.lang.Math;
 
@@ -112,6 +113,24 @@ public class TeleOp extends OpMode{
 
     @Override
     public void loop() {
+        cam.printStats(telemetry);
+        Vector2[] cubes = cam.getCubes();
+        telemetry.addLine("Cubes: " + cubes.length);
+        for (int i = 0; i < cubes.length; i++) {
+            telemetry.addLine("Cube" + i + ": (" + cubes[i].x + ", " + cubes[i].y + ")");
+        }
+
+        if (cubes.length > 0) {
+            Vector2 closest = cubes[0];
+            Vector2 goal = new Vector2(57, 34);
+            Vector2 goal2 = new Vector2(9, 34);
+            double pixelToInch = 5 / goal.distTo(goal2);
+            double dist = goal.distTo(closest) * pixelToInch;
+            double angle = goal.angleTo(closest);
+            telemetry.addLine("Dist to: " + dist);
+            telemetry.addLine("Angle to: " + angle);
+        }
+
         readEncoder();
         //Gamepad 1 Declarations
         double leftY = gamepad1.left_stick_y;
