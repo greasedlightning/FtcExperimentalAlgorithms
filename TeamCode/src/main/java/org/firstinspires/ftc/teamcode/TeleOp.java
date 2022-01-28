@@ -83,7 +83,7 @@ public class TeleOp extends OpMode{
         claw.setPower(0);
         flyWheel.setPower(0);
 
-        cam = new CompVision(hardwareMap, 2);
+        cam = new CompVision(hardwareMap, 1);
     }
 
     //Read encoders

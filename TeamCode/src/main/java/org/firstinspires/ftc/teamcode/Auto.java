@@ -69,10 +69,11 @@ public class Auto extends LeoOpMode
             cam.printDebugCam1(telemetry);
             cam.printStats(telemetry);
             path = cam.getPath();
-            if (path > 1) { path = 2 - path; }
             telemetry.addLine("Path chosen: " + path);
             telemetry.update();
         }
+        telemetry.addLine("Path chosen: " + path);
+        telemetry.update();
         sleep(100);
 
 
@@ -143,57 +144,73 @@ public class Auto extends LeoOpMode
 
 
     public void runLeft(int side) throws InterruptedException {
+        side = 1;
         int t, dir;
-        double forward = 19.701-2-1-10;
-        double angle = 37.5;
         double ang, add;
         closeClaw();
-        linearY(3, .5);
+        linearY(6, .5);
         Thread.sleep(300);
-        if (path == 2) {
-            t = 700;
-            dir = -1;
-            ang = -90-angle-15;
-            add = 4;
-        }else if(path == 1){
-            t = 730;
-            dir = -1;
-            ang = -90-angle-15;
-            add = 3.3;
-        }else{
-            dir = 1;
-            t = 125;
-            ang = angle;
-            add = 0;
-        }
-        //turn to point towards hub
-        turnHeading(-ang*side);
-        Thread.sleep(100);
-        // go near the hub
-        linearY(dir*forward, .4);
-        if (path<=1) {
+
+
+        //10
+        //160
+        //720
+
+        if (path == 0) {
+            //turn to point towards hub
+            turnHeading(37.5);
             Thread.sleep(100);
-            moveArm(t, .5);
-        }
-        Thread.sleep(100);
-        linearY(dir*5, .2);
-        if (path==2){
+            moveArm(100, .2);
             Thread.sleep(100);
-            moveArm(t, .5);
+            linearY(7, .2);
+
+            Thread.sleep(100);
+            resetClaw(300);
+            Thread.sleep(100);
+
+            linearY(-7, .5);
+            Thread.sleep(100);
+        } else if (path == 1) {
+            //turn to point towards hub
+            turnHeading(37.5);
+            Thread.sleep(100);
+            moveArm(220, .2);
+            Thread.sleep(100);
+            linearY(7, .2);
+
+            Thread.sleep(100);
+            resetClaw(300);
+            Thread.sleep(100);
+
+            linearY(-7, .5);
+            Thread.sleep(100);
+        } else {
+            turnHeading(-180 + 37.5);
+            Thread.sleep(100);
+            linearY(-10, .2);
+
+            moveArm(720, .4);
+            Thread.sleep(200);
+
+            Thread.sleep(100);
+            resetClaw(300);
+            Thread.sleep(100);
+
+            linearY(10, .4);
+            Thread.sleep(100);
+            turnHeading(-37.5);
         }
-        Thread.sleep(100);
-        resetClaw(300);
-        Thread.sleep(100);
-        linearY(dir*-(forward+add)/2, .5);
-        Thread.sleep(100);
-        turnHeading(-90*side);
+
+        turnHeading(-90);
         Thread.sleep(50);
         moveArm(200, .5);
         Thread.sleep(50);
-        linearY(-30, 1);
+
+        //linearY(-30, 1);
 
     }
     public void runRight(int side) throws InterruptedException {
+        side = 1;
         int t, dir;
         double forward = 19.701-2-1-10;
         double angle = 37.5;
@@ -238,11 +255,20 @@ public class Auto extends LeoOpMode
         linearY(dir*-(forward+add)/2, .5);
         Thread.sleep(100);
         turnHeading(70*side);
-        linearY(-17.5, .5);
+        linearY(-16, .6);
+        linearY(-1, .1);
 
-        flyWheel.setPower(0.7);
+        flyWheel.setPower(0.35);
         Thread.sleep(3500);
         flyWheel.setPower(0);
+
+        //go back to base
+        linearY(10,.7);
+        turnHeading(90);
+        closeClaw();
+        moveArm(100,.5);
+        linearY(60, 1);
+
     }
 
     @Override

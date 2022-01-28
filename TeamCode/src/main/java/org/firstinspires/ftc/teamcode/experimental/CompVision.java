@@ -41,7 +41,7 @@ public class CompVision {
             }
 
         } else {
-            cams[0] = OpenCvCameraFactory.getInstance().createInternalCamera(OpenCvInternalCamera.CameraDirection.BACK, monId);
+            cams[0] = OpenCvCameraFactory.getInstance().createWebcam(map.get(WebcamName.class, "Webcam 1"));
         }
 
         if (camNum > 0) {
@@ -152,7 +152,134 @@ public class CompVision {
         }
     }
     //320, 240
+
     class ShippingElementPipeLine extends OpenCvPipeline {
+
+        @Override
+        public Mat processFrame(Mat input) {
+            Imgproc.resize(input, input, new Size(80, 60));
+            Vector2 ele = getShippingE(input, 10);
+
+
+            if (ele == null) {
+                path = 0;
+            } else {
+                //path = ele.y;
+
+                if (ele.y < 20) {
+                    path = 0;
+                } else if ( ele.y < 55) {
+                    path = 1;
+                } else {
+                    path = 2;
+                }
+
+            }
+
+
+            return input;
+        }
+
+        public Vector2 getShippingE(Mat src, int tolerance) {
+            ArrayList<Vector2> positions = new ArrayList<Vector2>();
+            for (int x = 0; x < src.rows(); x++) {
+                for (int y = 0; y < src.cols(); y++) {
+
+                    Vector2 p = new Vector2(0, 0);
+                    Efill(src, p, x, y);
+
+                    if (p.c > tolerance) {
+                        positions.add(p);
+                        p.clean();
+                    }
+                }
+            }
+
+            Vector2 maxVec = null;
+            //System.out.println(positions.size());
+            if (positions.size() > 0) {
+                maxVec = positions.get(0);
+                for (Vector2 p : positions) {
+                    if (p.c > maxVec.c) {
+                        maxVec = p;
+                    }
+                    //putDotE(src, p, p.x, p.y);
+                }
+                putDotE(src, maxVec, maxVec.x, maxVec.y);
+
+            }
+
+            return maxVec;
+        }
+
+        public void Efill(Mat src, Vector2 p, int x, int y) {
+            if (!valid(src, x, y) ) { return; }
+
+            double[] pix = src.get(x, y);
+            double r = pix[0];
+            double g = pix[1];
+            double b = pix[2];
+
+            double tot = r + g + b;
+
+            if (!(106 < (g / tot)*300 && tot/4 > 30) || tot == 765) { return; }
+
+            pix[0] = 255;
+            pix[1] = 255;
+            pix[2] = 255;
+
+            src.put(x, y, pix);
+
+            p.x += x;
+            p.y += y;
+            p.c++;
+
+            Efill(src, p, x+2, y);
+            Efill(src, p, x, y+2);
+            Efill(src, p, x, y-2);
+            Efill(src, p, x-2, y);
+
+            Efill(src, p, x+1, y);
+            Efill(src, p, x, y+1);
+            Efill(src, p, x, y-1);
+            Efill(src, p, x-1, y);
+
+        }
+
+        public boolean valid(Mat src, int x, int y) {
+            return !(x < 0 || y < 0 || x >= src.rows() || y >= src.cols() || src.get(x, y) == null);
+        }
+
+        public void putDotE(Mat src, Vector2 p, int x, int y) {
+            final int dist = 1;
+
+            if (Math.abs(p.x-x) > dist || Math.abs(p.y-y) > dist || src.get(x, y)[0] < 10) {
+                return;
+            }
+
+
+            double[] c = src.get(x, y);
+            c[0] = 0;
+            c[1] = 0;
+            c[2] = 0;
+            src.put(x, y, c);
+
+            if (x > 0) {
+                putDotE(src, p, x-1, y);
+            }
+            if (y > 0) {
+                putDotE(src, p, x, y-1);
+            }
+            if (x < src.rows() - 1) {
+                putDotE(src, p, x+1, y);
+            }
+            if (y < src.cols() - 1) {
+                putDotE(src, p, x, y+1);
+            }
+        }
+    }
+
+    class ShippingElementPipeLineOLD extends OpenCvPipeline {
         @Override
         public Mat processFrame(Mat input) {
             choosePath(input, false);
@@ -201,11 +328,9 @@ public class CompVision {
                     tot++;
                 }
             }
-
             return 100 + (g * 3 - r - b) / 3.0f / tot;
         }
     }
-
     class CubesPipeLine extends OpenCvPipeline {
 
         @Override
