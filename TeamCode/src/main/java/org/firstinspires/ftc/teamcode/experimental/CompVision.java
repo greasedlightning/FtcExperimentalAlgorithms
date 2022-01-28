@@ -69,6 +69,33 @@ public class CompVision {
 
                     }
                 });
+                if (camNum > 2) {
+                    cams[2].openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
+                        @Override
+                        public void onOpened() {
+                            cams[2].setPipeline(new TestPipeLine());
+                            cams[2].startStreaming(320, 240, OpenCvCameraRotation.UPSIDE_DOWN);
+                        }
+
+                        @Override
+                        public void onError(int errorCode) {
+                        }
+                    });
+
+                    if (camNum > 3) {
+                        cams[3].openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
+                            @Override
+                            public void onOpened() {
+                                cams[3].setPipeline(new TestPipeLine());
+                                cams[3].startStreaming(320, 240, OpenCvCameraRotation.UPSIDE_DOWN);
+                            }
+
+                            @Override
+                            public void onError(int errorCode) {
+                            }
+                        });
+                    }
+                }
             }
         }
     }

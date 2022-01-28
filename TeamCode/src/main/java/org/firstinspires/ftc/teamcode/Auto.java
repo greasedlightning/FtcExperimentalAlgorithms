@@ -77,7 +77,7 @@ public class Auto extends LeoOpMode
         sleep(100);
 
 
-        switch (starting) {
+        /*switch (starting) {
             case 0:
                 runLeft(1);
                 break;
@@ -90,24 +90,25 @@ public class Auto extends LeoOpMode
             case 3:
                 runRight(-1);
                 break;
-        }
-        /*int t, dir;
+        }*/
+
+        int t, dir;
         double forward = 19.701-2-1-10;
-        double angle = 37.5;
+        double angle = 37.5 + 2.5;
         double ang, add;
         closeClaw();
         linearY(3, .5);
         Thread.sleep(300);
         if (path == 2) {
-            t = 700;
+            t = 670;
             dir = -1;
             ang = -90-angle-15;
-            add = 4;
+            add = 2;
         }else if(path == 1){
             t = 730;
             dir = -1;
             ang = -90-angle-15;
-            add = 3.3;
+            add = 1.3;
         }else{
             dir = 1;
             t = 125;
@@ -116,30 +117,41 @@ public class Auto extends LeoOpMode
         }
         //turn to point towards hub
         turnHeading(ang);
-        Thread.sleep(100);
+        Thread.sleep( 100);
         // go near the hub
-        linearY(dir*forward, .4);
+        linearY(dir*(forward+add), .3);
         if (path<=1) {
             Thread.sleep(100);
-            moveArm(t, .5);
+            moveArm(t, .3);
         }
         Thread.sleep(100);
         linearY(dir*5, .2);
         if (path==2){
             Thread.sleep(100);
-            moveArm(t, .5);
+            moveArm(t, .3);
         }
         Thread.sleep(100);
         resetClaw(300);
         Thread.sleep(100);
         linearY(dir*-(forward+add)/2, .5);
         Thread.sleep(100);
+
+        turnHeading(70);
+        Thread.sleep(100);
+        linearY(-42.5, .5);
+        Thread.sleep(100);
+
+        flyWheel.setPower(.6);
+        Thread.sleep(2000);
+        flyWheel.setPower(0);
+
+
         turnHeading(-90);
         Thread.sleep(50);
         moveArm(200, .5);
         Thread.sleep(50);
-        linearY(-50, .8);
-*/
+        linearY(-40, .8);
+
     }
 
 

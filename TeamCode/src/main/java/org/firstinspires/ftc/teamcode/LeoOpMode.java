@@ -321,7 +321,7 @@ public abstract class LeoOpMode extends LinearOpMode{
     public void turnHeading(double angle, double pow) throws InterruptedException {
         double power = pow;
         double m_P = 5;
-        double tol = 2;
+        double tol = 1;
         double err = (angle-this.getAngle());
         while(opModeIsActive() && Math.abs(err)>tol){
             int ticks = (int)(m_P*err);
