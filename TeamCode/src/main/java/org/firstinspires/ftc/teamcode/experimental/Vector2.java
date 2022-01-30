@@ -15,7 +15,6 @@ public class Vector2 {
         if (c != 0) {
             x /= c;
             y /= c;
-
         }
     }
 

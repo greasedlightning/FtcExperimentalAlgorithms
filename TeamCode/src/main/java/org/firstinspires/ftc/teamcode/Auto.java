@@ -151,9 +151,7 @@ public class Auto extends LeoOpMode
         moveArm(200, .5);
         Thread.sleep(50);
         linearY(-40, .8);
-
     }
-
 
     public void runLeft(int side) throws InterruptedException {
         side = 1;

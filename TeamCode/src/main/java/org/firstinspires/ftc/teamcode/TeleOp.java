@@ -25,7 +25,7 @@ import org.firstinspires.ftc.teamcode.experimental.Vector2;
 import java.lang.Math;
 
 @com.qualcomm.robotcore.eventloop.opmode.TeleOp(name = "TeleOp", group = "TeleOp")
-public class TeleOp extends OpMode{
+public class TeleOp extends OpMode {
 
     CompVision cam;
 
