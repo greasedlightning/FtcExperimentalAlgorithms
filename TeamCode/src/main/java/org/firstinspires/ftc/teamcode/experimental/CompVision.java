@@ -23,6 +23,8 @@ import java.util.Vector;
 public class CompVision {
     private OpenCvCamera[] cams;
     private int camNum = 0;
+    private int path = -1;
+    private ArrayList<Vector2> cubes = new ArrayList<>();
 
     public CompVision(HardwareMap map, int n) {
         camNum = n;
@@ -100,32 +102,9 @@ public class CompVision {
         }
     }
 
-    public void printStats(Telemetry t) {
-        for (int i = 0; i < camNum; i++) {
-            try {
-                t.addLine("Cam" + (i + 1));
-                t.addData("Frame Count", cams[i].getFrameCount());
-                t.addData("FPS", String.format("%.2f", cams[i].getFps()));
-                t.addData("Total frame time ms", cams[i].getTotalFrameTimeMs());
-                t.addData("Pipeline time ms", cams[i].getPipelineTimeMs());
-            } catch (Exception e) {
-                t.addLine("Cam" + (i + 1) + " not available");
-            }
-        }
-    }
-
-    private int path = -1;
-    private float d0;
-    private float d1;
-    private float d2;
-
     public int getPath() {
         return path;
     }
-
-
-    private ArrayList<Vector2> cubes = new ArrayList<>();
-
     public Vector2[] getCubes() {
         Vector2[] result = new Vector2[cubes.size()];
         for (int i = 0; i < result.length; i++) {
@@ -147,11 +126,20 @@ public class CompVision {
         return result;
     }
 
-
+    public void printStats(Telemetry t) {
+        for (int i = 0; i < camNum; i++) {
+            try {
+                t.addLine("Cam" + (i + 1));
+                t.addData("Frame Count", cams[i].getFrameCount());
+                t.addData("FPS", String.format("%.2f", cams[i].getFps()));
+                t.addData("Total frame time ms", cams[i].getTotalFrameTimeMs());
+                t.addData("Pipeline time ms", cams[i].getPipelineTimeMs());
+            } catch (Exception e) {
+                t.addLine("Cam" + (i + 1) + " not available");
+            }
+        }
+    }
     public void printDebugCam1(Telemetry t) {
-        t.addLine("d0: " + d0);
-        t.addLine("d1: " + d1);
-        t.addLine("d2: " + d2);
         t.addLine("Path chosen: " + path);
     }
 
@@ -160,11 +148,9 @@ public class CompVision {
             cams[i].stopStreaming();
         }
     }
-
     public void stop(int i) {
         cams[i].stopStreaming();
     }
-
     public void changePipeLine(int i, int pipeline) {
         OpenCvCamera cam = cams[i];
         switch (pipeline) {
@@ -178,7 +164,6 @@ public class CompVision {
                 cam.setPipeline(new TestPipeLine());
         }
     }
-    //320, 240
 
     class ShippingElementPipeLine extends OpenCvPipeline {
 
@@ -305,59 +290,6 @@ public class CompVision {
             }
         }
     }
-
-    class ShippingElementPipeLineOLD extends OpenCvPipeline {
-        @Override
-        public Mat processFrame(Mat input) {
-            choosePath(input, false);
-            return input;
-        }
-
-        private void choosePath(Mat input, boolean debug) {
-            boolean go;
-            if (debug) {
-                go = path >= -1;
-            } else {
-                go = path == -1;
-            }
-
-            if (go) {
-                d0 = greenDensityRatio(input, 0, 0, input.height(), 100);
-                d1 = greenDensityRatio(input, 0, 100, input.height(), 120);
-                d2 = greenDensityRatio(input, 0, 220, input.height(), 100);
-                if (d0 > d1) {
-                    if (d0 > d2) {
-                        path = 0;
-                    } else {
-                        path = 2;
-                    }
-                } else {
-                    if (d1 > d2) {
-                        path = 1;
-                    } else {
-                        path = 2;
-                    }
-                }
-            }
-        }
-
-        private float greenDensityRatio(Mat input, int _y, int _x, int height, int width) {
-            float r = 0;
-            float g = 0;
-            float b = 0;
-            int tot = 0;
-            for (int x = _x; x < _x + width && x < input.height(); x++) {
-                for (int y = _y; y < _y + height && y < input.width(); y++) {
-                    double[] d = input.get(x, y);
-                    r += d[0];
-                    g += d[1];
-                    b += d[2];
-                    tot++;
-                }
-            }
-            return 100 + (g * 3 - r - b) / 3.0f / tot;
-        }
-    }
     class CubesPipeLine extends OpenCvPipeline {
 
         @Override
@@ -389,7 +321,6 @@ public class CompVision {
             return imgThresholded;
         }
 
-
         public ArrayList<Vector2> getCubes(Mat src, int tolerance) {
             ArrayList<Vector2> positions = new ArrayList<Vector2>();
             for (int x = 0; x < src.rows(); x++) {
@@ -409,7 +340,6 @@ public class CompVision {
             }
             return positions;
         }
-
 
         public boolean valid(Mat src, int x, int y) {
             return !(x < 0 || y < 0 || x >= src.rows() || y >= src.cols() || src.get(x, y) == null);
@@ -461,7 +391,6 @@ public class CompVision {
         }
     }
     class TestPipeLine extends OpenCvPipeline {
-
         @Override
         public Mat processFrame(Mat input) {
             return input;

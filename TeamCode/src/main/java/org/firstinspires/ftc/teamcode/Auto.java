@@ -21,42 +21,17 @@
 
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.hardware.CRServo;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
-import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
-import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.teamcode.experimental.CompVision;
-import org.firstinspires.ftc.teamcode.experimental.PIDControl;
 import org.firstinspires.ftc.teamcode.experimental.Vector2;
-import org.opencv.core.Mat;
-import org.opencv.core.Point;
-import org.opencv.core.Scalar;
-import org.opencv.imgproc.Imgproc;
-import org.openftc.easyopencv.OpenCvCamera;
-import org.openftc.easyopencv.OpenCvCameraFactory;
-import org.openftc.easyopencv.OpenCvCameraRotation;
-import org.openftc.easyopencv.OpenCvInternalCamera;
-import org.openftc.easyopencv.OpenCvPipeline;
-
-import java.util.ArrayList;
 
 @Disabled
 @Autonomous(name = "Auto", group = "autonomous")
 public class Auto extends LeoOpMode
 {
-    CompVision cam;
     private int path = -1;
-    public int ticks = 0;
 
     public void runAutoPath(int starting) throws InterruptedException {
         initRobo();
@@ -337,12 +312,6 @@ public class Auto extends LeoOpMode
         //right = far
         //left = close
 
-        double x = 0;
-        double y = 0;
-
-        double acculm = 0;
-        double acculmA = 0;
-
         resetClaw(300);
         boolean inPosition = false;
         while (!inPosition) {
@@ -362,40 +331,20 @@ public class Auto extends LeoOpMode
                 double dist = goal.distTo(closest) * pixelToInch;
                 double angle = goal.angleTo(closest) / 6f;
                 turnHeading(angle + getAngle(), 0.2);
-                acculmA += angle + getAngle();
 
                 if (dist < 5) {
-                    acculm += dist;
                     linearY(dist, .2);
-                    x += Math.cos(getAngle())*dist;
-                    y += Math.sin(getAngle())*dist;
                     inPosition = true;
                 } else {
-                    acculm += 2;
                     linearY(2, .2);
-                    x += Math.cos(getAngle())*2;
-                    y += Math.sin(getAngle())*2;
-
                 }
             } else {
-                acculm += 4;
                 linearY(4, .4);
-                x += Math.cos(getAngle())*4;
-                y += Math.sin(getAngle())*4;
-
             }
         }
         closeClaw();
         sleep(400);
         moveArm(200, 0.5);
-        sleep(100);
-        linearY(-acculm/2, 0.2);
-        x -= Math.cos(getAngle())*(acculm/2);
-        y -= Math.sin(getAngle())*(acculm/2);
-
-        //turnHeading(-Math.atan2(y, x)*180/Math.PI, 0.2);
-        //linearY(Math.sqrt(x*x+y*y), 0.2);
-
         sleep(2000);
     }
 }
