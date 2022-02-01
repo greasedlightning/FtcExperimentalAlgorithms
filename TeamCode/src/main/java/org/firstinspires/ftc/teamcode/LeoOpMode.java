@@ -8,115 +8,123 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-
-import org.firstinspires.ftc.teamcode.experimental.CompVision;
+import com.qualcomm.robotcore.util.ElapsedTime;
+import org.firstinspires.ftc.teamcode.experimental.PIDControl;
 
 public abstract class LeoOpMode extends LinearOpMode{
-    //Motors
-    private DcMotor topLeft;
-    private DcMotor topRight;
-    private DcMotor bottomLeft;
-    private DcMotor bottomRight;
-    protected DcMotor flyWheel;
-    private DcMotor armBase;
-    private CRServo claw;
+    ElapsedTime time = new ElapsedTime();
 
-    //Gyro
-    private BNO055IMU imu;
-    //Cam
-    protected CompVision cam;
+    DcMotor topLeft;
+    DcMotor topRight;
+    DcMotor bottomLeft;
+    DcMotor bottomRight;
 
-    //Returning
-    private boolean isRecording = false;
-    private float x = 0;
-    private float y = 0;
+    DcMotor flyWheel;
+    DcMotor armBase;
+
+    CRServo claw;
+
+    BNO055IMU imu;
+
+    // experimental PID control - localization
+    Orientation lastAngles;
+    double globalAngle;
+    PIDControl pid;
+
+    final double RADIUS=2;
+    final double PI=3.1415926535;
+    final double CIRCUMFERENCE = 2*PI*RADIUS;
+    final int TPR = 1120;
 
     public void initRobo(){
+        //Control Hub
         topLeft = hardwareMap.dcMotor.get("topLeft");           //1 Motor
         topRight = hardwareMap.dcMotor.get("topRight");         //0 Motor
         bottomLeft = hardwareMap.dcMotor.get("bottomLeft");     //2 Motor
         bottomRight = hardwareMap.dcMotor.get("bottomRight");   //3 Motor
-        flyWheel = hardwareMap.dcMotor.get("flyWheel");         //0 Motor
-        armBase = hardwareMap.dcMotor.get("armBase");           //1 Motor
-        claw = hardwareMap.crservo.get("claw");                 //1 CR Servo
-
-        topLeft.setDirection(DcMotorSimple.Direction.REVERSE);
-        topRight.setDirection(DcMotorSimple.Direction.FORWARD);
-        bottomLeft.setDirection(DcMotorSimple.Direction.REVERSE);
-        bottomRight.setDirection(DcMotorSimple.Direction.FORWARD);
-        flyWheel.setDirection(DcMotor.Direction.FORWARD);
-        armBase.setDirection(DcMotor.Direction.FORWARD);
-        claw.setDirection(CRServo.Direction.FORWARD);
 
         topLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         topRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         bottomLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         bottomRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        setDrive(DcMotor.RunMode.RUN_USING_ENCODER);
-        setDrivePow(0);
-        setDrive(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        topLeft.setDirection(DcMotorSimple.Direction.REVERSE);
+        topRight.setDirection(DcMotorSimple.Direction.FORWARD);
+        bottomLeft.setDirection(DcMotorSimple.Direction.REVERSE);
+        bottomRight.setDirection(DcMotorSimple.Direction.FORWARD);
+
+        topLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        topRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        bottomLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        bottomRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        topLeft.setPower(0);
+        topRight.setPower(0);
+        bottomLeft.setPower(0);
+        bottomRight.setPower(0);
+        
+        topLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        topRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        bottomLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        bottomRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        //Expansion Hub
+        claw = hardwareMap.crservo.get("claw");                 //1 CR Servo
+        flyWheel = hardwareMap.dcMotor.get("flyWheel");         //0 Motor
+        armBase = hardwareMap.dcMotor.get("armBase");           //1 Motor
 
         flyWheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        flyWheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        flyWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        flyWheel.setPower(0);
-
         armBase.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        flyWheel.setDirection(DcMotor.Direction.FORWARD);
+        armBase.setDirection(DcMotor.Direction.FORWARD);
+
+        claw.setDirection(CRServo.Direction.FORWARD);
+
         armBase.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        flyWheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
         armBase.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        flyWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
         armBase.setPower(0);
+        claw.setPower(0);
+        flyWheel.setPower(0);
 
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
         imu = hardwareMap.get(BNO055IMU.class, "imu");
         imu.initialize(parameters);
+
+        // experimental PID control - setup --------------------------
+        //init orientation (old)
+        lastAngles = new Orientation();
+        lastAngles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+        globalAngle = 0;
+
+
+        double kP, kI, kD; // constant parameters
+        kP = 0.1;
+        kI = 1;
+        kD = 0.5;
+        this.pid = new PIDControl(kP, kI, kD);
+        this.pid.setSetpoint(0);
+        this.pid.setOutputRange(0, 1);
+        this.pid.setInputRange(-90, 90);
+        this.pid.enable();
+
         waitForStart();
     }
 
-    public void linearY(double inches, double power) throws InterruptedException {
-        if (isRecording) { addToPath(inches); }
-        final double RADIUS=2;
-        final double CIRCUMFERENCE = Math.PI*RADIUS*RADIUS;
-        final int TPR = 1120;
-        int ticks = (int)(inches/CIRCUMFERENCE*TPR);
-        moveRobot(ticks, ticks, power);
-    }
-    public void moveRobot(int left, int right, double power) throws InterruptedException{
-        setDrive(DcMotor.RunMode.RUN_USING_ENCODER);
-        setDriveTarget(-left, -right);
-        setDrivePow(power);
-        setDrive(DcMotor.RunMode.RUN_TO_POSITION);
-        while(topLeft.isBusy() || topRight.isBusy() || bottomLeft.isBusy() || bottomRight.isBusy()) {}
-        setDrivePow(0);
-        setDrive(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-    }
-    public void setDriveTarget(int left, int right){
-        topLeft.setTargetPosition(left);
-        bottomLeft.setTargetPosition(left);
-        topRight.setTargetPosition(right);
-        bottomRight.setTargetPosition(right);
-    }
-
-    public void turnHeading(double angle) throws InterruptedException {
-        turnHeading(angle,0.4f);
-    }
-    public void turnHeading(double angle, double pow) throws InterruptedException {
-        double power = pow;
-        double m_P = 5;
-        double tol = 1;
-        double err = (angle-this.getAngle());
-        while(opModeIsActive() && Math.abs(err)>tol){
-            int ticks = (int)(m_P*err);
-            moveRobot(-ticks, ticks, power);
-            err = angle-getAngle();
-        }
-    }
-
-    public void moveArm(int ticks, double power) throws InterruptedException{
-        armBase.setTargetPosition(ticks);
+    public void moveArmBase(double power, int time) throws InterruptedException{
         armBase.setPower(power);
-        armBase.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        Thread.sleep(time);
+        armBase.setPower(0);
     }
+
+    public void moveClaw(double power) throws InterruptedException{
+        claw.setPower(power);
+    }
+
     public void resetClaw(int time) throws InterruptedException {
         claw.setPower(0);
         claw.setPower(-1);
@@ -127,58 +135,111 @@ public abstract class LeoOpMode extends LinearOpMode{
         claw.setPower(1);
     }
 
-    public void setPathStart() {
-        isRecording = true;
-        x = 0;
-        y = 0;
-    }
-    public void reversePath() throws InterruptedException {
-        if (!isRecording) return;
 
-        double dist = Math.sqrt(x*x + y*y);
-        double angle = Math.atan2(y, x)*180/Math.PI;
-        if (angle > 180) { angle = 360 - angle; }
-        angle *= -1;
-
-        turnHeading(angle);
-        sleep(200);
-        linearY(dist, 0.4);
-        x = 0;
-        y = 0;
-        isRecording = false;
+    //experimental code with PID control ----------------------------
+    public double getAngle(){
+        Orientation angles = this.imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+        return angles.firstAngle;
     }
-    public void addToPath(double inches) {
-        double angle = getAngle();
-        if (angle < 0) {
-            angle = 360 + angle;
+    //remember to set setpoint
+    public double[] calcCorrection(double power, double angle){
+        double powerCorrection = this.pid.performPID(angle);
+        double[] corrections = {(power - powerCorrection) ,(power + powerCorrection), power};
+        return corrections;
+    }
+    public void setColumnPow(double powLeft, double powRight){
+        topLeft.setPower(powLeft);
+        topRight.setPower(powRight);
+        bottomLeft.setPower(powLeft);
+        bottomRight.setPower(powRight);
+    }
+    public void turnHeadingAM(double angle) throws InterruptedException { // this is not really turn heading, it's weirder
+        this.pid.setSetpoint(angle);
+        double pow = .4, tol = 1;
+        double [] correction; // = new double[2];
+        double err = Math.abs(this.globalAngle - angle);
+        while (opModeIsActive() && err > tol) {
+            telemetry.addData("Currently buffering absolute angle: ", this.getAngle());
+            telemetry.update();
+            correction = this.calcCorrection(pow, this.getAngle()); // calc correction
+            this.setColumnPow(correction[0], correction[1]); // correct
+            err = Math.abs(this.globalAngle - angle);
         }
-        angle = 360 - angle;
-        //angle += 90;
-        //if (angle > 360) { angle -= 360; }
+        // reset
+        topLeft.setPower(0);
+        topRight.setPower(0);
+        bottomLeft.setPower(0);
+        bottomRight.setPower(0);
+    }
 
-        x += Math.cos(angle) * inches;
-        y += Math.sin(angle) * inches;
+    // end experimental ------------------------
+
+    public void turnHeadingNF(double angle) throws InterruptedException {
+        double speed = 0.02;
+        int lastDir = 0;
+
+        while (opModeIsActive()) {
+            Orientation angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+
+            telemetry.addData("Currently buffering position: ", angles.firstAngle);
+            telemetry.update();
+
+            double dif = Math.abs(angles.firstAngle - angle);
+            if (dif < 1) {
+                break;
+            }
+
+            double pow = speed;
+            if (angle < angles.firstAngle) {
+                pow *= 1;
+                if (lastDir == 0) { lastDir = 1; }
+                else if (lastDir == -1) {
+                    speed /= 2.0;  lastDir = 1;
+                }
+            } else {
+                pow *= -1;
+                if (lastDir == 0) {
+                    lastDir = -1;
+                } else if (lastDir == 1) {
+                    speed /= 2.0; lastDir = -1;
+                }
+            }
+            topLeft.setPower(-pow);
+            topRight.setPower(pow);
+            bottomLeft.setPower(-pow);
+            bottomRight.setPower(pow);
+        }
+        topLeft.setPower(0);
+        topRight.setPower(0);
+        bottomLeft.setPower(0);
+        bottomRight.setPower(0);
     }
 
 
-    public void setDrive(DcMotor.RunMode mode) {
-        topLeft.setMode(mode);
-        topRight.setMode(mode);
-        bottomLeft.setMode(mode);
-        bottomRight.setMode(mode);
-    }
-    public void setDrivePow(double pow) {
+    ///Set Single Power
+    public void setSinglePow(double pow){
         topLeft.setPower(pow);
         topRight.setPower(pow);
         bottomLeft.setPower(pow);
         bottomRight.setPower(pow);
     }
 
-    public double getAngle(){
-        Orientation angles = this.imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-        return angles.firstAngle;
+    //Set Each Power
+    public void setEachPow(double tLpow, double tRpow, double bLpow, double bRpow){
+        topLeft.setPower(tLpow);
+        topRight.setPower(tRpow);
+        bottomLeft.setPower(bLpow);
+        bottomRight.setPower(bRpow);
     }
 
+    public void startFlywheel(double pow, int time) throws InterruptedException {
+        flyWheel.setPower(pow);
+
+        Thread.sleep(time);
+        flyWheel.setPower(0);
+    }
+
+    //Read Motors encoders
     public void readEncoder(){
         telemetry.addData("topLeft Encoder Ticks: ", topLeft.getCurrentPosition());
         telemetry.addData("topRight Encoder Ticks: ", topRight.getCurrentPosition());
@@ -186,8 +247,91 @@ public abstract class LeoOpMode extends LinearOpMode{
         telemetry.addData("bottomRight Encoder Ticks: ", bottomRight.getCurrentPosition());
         telemetry.update();
     }
+
+    //Read Arm encoders
     public void readEncoderArm(){
         telemetry.addData("Encoder Ticks: ", armBase.getCurrentPosition());
         telemetry.update();
+    }
+    public void moveArm(int ticks, double power) throws InterruptedException{
+        //armBase.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        //arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        armBase.setTargetPosition(ticks);
+        armBase.setPower(power);
+        armBase.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        while (armBase.isBusy()) {
+            readEncoderArm();
+        }
+        //armBase.setPower(0);
+        //armBase.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+    }
+
+    //Sets all target positions
+    public void setAllMTargets(int left, int right){
+        topLeft.setTargetPosition(left);
+        topRight.setTargetPosition(right);
+        bottomLeft.setTargetPosition(left);
+        bottomRight.setTargetPosition(right);
+    }
+
+
+    //Linear Encoder movement
+    public void moveRobot(int left, int right, double power) throws InterruptedException{
+        topLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        topRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        bottomLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        bottomRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        setAllMTargets(-left, -right);
+
+        topLeft.setPower(power);
+        topRight.setPower(power);
+        bottomLeft.setPower(power);
+        bottomRight.setPower(power);
+
+        topLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        topRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        bottomLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        bottomRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        while(topLeft.isBusy() || topRight.isBusy() || bottomLeft.isBusy() || bottomRight.isBusy()) {
+
+        }
+        topLeft.setPower(0);
+        topRight.setPower(0);
+        bottomLeft.setPower(0);
+        bottomRight.setPower(0);
+
+        topLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        topRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        bottomLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        bottomRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+    }
+
+    public void linearY(double inches, double power) throws InterruptedException {
+        int ticks = (int)(inches/CIRCUMFERENCE*TPR);
+        moveRobot(ticks, ticks, power);
+    }
+
+    public void turnHeading(double angle) throws InterruptedException {
+        turnHeading(angle,0.5f);
+    }
+
+    public void turnHeading(double angle, double pow) throws InterruptedException {
+        double power = pow;
+        double m_P = 5.5;
+        double tol = 2.5;
+        //double pow = 1;
+        double err = (angle-this.getAngle());
+        while(opModeIsActive() && Math.abs(err)>tol){
+            int ticks = (int)(m_P*err);
+            moveRobot(-ticks, ticks, power);
+            err = (angle-this.getAngle());
+            //pow = 1 * (err / 90);
+            //setColumnPow(-pow, pow);
+            telemetry.addLine(String.valueOf(this.getAngle()));
+            telemetry.update();
+        }
     }
 }

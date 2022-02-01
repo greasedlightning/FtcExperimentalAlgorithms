@@ -69,63 +69,69 @@ public class Auto extends LeoOpMode
 
         int t, dir;
         double forward = 19.701-2-1-10;
-        double angle = 37.5 + 2.5;
+        double angle = 37.5 + 2.5 + 2;
         double ang, add;
         closeClaw();
-        linearY(3, .5);
+        Thread.sleep(200);
+        moveArm(100, .3);
+        linearY(5, .7);
         Thread.sleep(300);
         if (path == 2) {
             t = 670;
             dir = -1;
-            ang = -90-angle-15;
-            add = 2;
+            ang = -90-angle-7.5;
+            add = 0;
         }else if(path == 1){
             t = 730;
             dir = -1;
-            ang = -90-angle-15;
-            add = 1.3;
+            ang = -90-angle-7.5;
+            add = 0;
         }else{
             dir = 1;
-            t = 125;
+            t = 150;
             ang = angle;
             add = 0;
         }
         //turn to point towards hub
         turnHeading(ang);
-        Thread.sleep( 100);
+        Thread.sleep( 50);
         // go near the hub
         linearY(dir*(forward+add), .3);
         if (path<=1) {
-            Thread.sleep(100);
-            moveArm(t, .3);
+            Thread.sleep(50);
+            moveArm(t, .2);
         }
-        Thread.sleep(100);
+        Thread.sleep(200);
         linearY(dir*5, .2);
         if (path==2){
-            Thread.sleep(100);
-            moveArm(t, .3);
+            Thread.sleep(50);
+            moveArm(t, .2);
         }
-        Thread.sleep(100);
+        Thread.sleep(200);
         resetClaw(300);
-        Thread.sleep(100);
+        Thread.sleep(50);
         linearY(dir*-(forward+add)/2, .5);
-        Thread.sleep(100);
+        Thread.sleep(50);
 
-        turnHeading(70);
+        moveArm(250, .4);
         Thread.sleep(100);
-        linearY(-42.5, .5);
+        turnHeading(62);
         Thread.sleep(100);
+        linearY(-16, .55);
+        linearY(-1.5, .1);
+        Thread.sleep(10);
 
         flyWheel.setPower(.6);
         Thread.sleep(2000);
         flyWheel.setPower(0);
 
+        //linearY(1, .8);
+        turnHeading(0, .8);
+        Thread.sleep(50);
+        linearY(8, .9);
+        moveArm(500, .75);
 
-        turnHeading(-90);
-        Thread.sleep(50);
-        moveArm(200, .5);
-        Thread.sleep(50);
-        linearY(-40, .8);
+
     }
 
     public void runLeft(int side) throws InterruptedException {
@@ -241,7 +247,7 @@ public class Auto extends LeoOpMode
         Thread.sleep(100);
         turnHeading(70*side);
         linearY(-16, .6);
-        linearY(-1, .1);
+        linearY(-2.5, .1);
 
         flyWheel.setPower(0.35);
         Thread.sleep(3500);
