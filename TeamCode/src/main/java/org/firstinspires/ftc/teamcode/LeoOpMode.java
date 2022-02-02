@@ -111,8 +111,6 @@ public abstract class LeoOpMode extends LinearOpMode{
         this.pid.setOutputRange(0, 1);
         this.pid.setInputRange(-90, 90);
         this.pid.enable();
-
-        waitForStart();
     }
 
     public void moveArmBase(double power, int time) throws InterruptedException{
@@ -277,6 +275,42 @@ public abstract class LeoOpMode extends LinearOpMode{
 
 
     //Linear Encoder movement
+    public void moveRobotSmooth(int left, int right, double power) throws InterruptedException{
+        topLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        topRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        bottomLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        bottomRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        setAllMTargets(-left, -right);
+
+        topLeft.setPower(power);
+        topRight.setPower(power);
+        bottomLeft.setPower(power);
+        bottomRight.setPower(power);
+
+        topLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        topRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        bottomLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        bottomRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        while(topLeft.isBusy() || topRight.isBusy() || bottomLeft.isBusy() || bottomRight.isBusy()) {
+            power = Math.max(power * 0.99, 0.1);
+            topLeft.setPower(power);
+            topRight.setPower(power);
+            bottomLeft.setPower(power);
+            bottomRight.setPower(power);
+        }
+        topLeft.setPower(0);
+        topRight.setPower(0);
+        bottomLeft.setPower(0);
+        bottomRight.setPower(0);
+
+        topLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        topRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        bottomLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        bottomRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+    }
+
     public void moveRobot(int left, int right, double power) throws InterruptedException{
         topLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         topRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -308,7 +342,6 @@ public abstract class LeoOpMode extends LinearOpMode{
         bottomLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         bottomRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
-
     public void linearY(double inches, double power) throws InterruptedException {
         int ticks = (int)(inches/CIRCUMFERENCE*TPR);
         moveRobot(ticks, ticks, power);
@@ -323,11 +356,15 @@ public abstract class LeoOpMode extends LinearOpMode{
         double m_P = 5.5;
         double tol = 2.5;
         //double pow = 1;
+
         double err = (angle-this.getAngle());
+
+
         while(opModeIsActive() && Math.abs(err)>tol){
             int ticks = (int)(m_P*err);
-            moveRobot(-ticks, ticks, power);
+            moveRobotSmooth(-ticks, ticks, power);
             err = (angle-this.getAngle());
+            power *= 0.7;
             //pow = 1 * (err / 90);
             //setColumnPow(-pow, pow);
             telemetry.addLine(String.valueOf(this.getAngle()));

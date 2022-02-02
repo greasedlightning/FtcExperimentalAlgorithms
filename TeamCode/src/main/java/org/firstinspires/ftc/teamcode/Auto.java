@@ -36,10 +36,7 @@ public class Auto extends LeoOpMode
     public void runAutoPath(int starting) throws InterruptedException {
         initRobo();
         cam = new CompVision(hardwareMap, 1);
-        telemetry.addLine("Waiting for start");
-        telemetry.update();
 
-        waitForStart();
         while(path == -1){
             cam.printDebugCam1(telemetry);
             cam.printStats(telemetry);
@@ -48,11 +45,13 @@ public class Auto extends LeoOpMode
             telemetry.update();
         }
         telemetry.addLine("Path chosen: " + path);
+        telemetry.addLine("Waiting for start");
         telemetry.update();
+        waitForStart();
         sleep(100);
 
 
-        /*switch (starting) {
+        switch (starting) {
             case 0:
                 runLeft(1);
                 break;
@@ -63,146 +62,10 @@ public class Auto extends LeoOpMode
                 runRight(1);
                 break;
             case 3:
-                runRight(-1);
+                runRedRight();
                 break;
-        }*/
-
-        int t, dir;
-        double forward = 19.701-2-1-10;
-        double angle = 37.5 + 2.5 + 2;
-        double ang, add;
-        closeClaw();
-        Thread.sleep(200);
-        moveArm(100, .3);
-        linearY(5, .7);
-        Thread.sleep(300);
-        if (path == 2) {
-            t = 670;
-            dir = -1;
-            ang = -90-angle-7.5;
-            add = 0;
-        }else if(path == 1){
-            t = 730;
-            dir = -1;
-            ang = -90-angle-7.5;
-            add = 0;
-        }else{
-            dir = 1;
-            t = 150;
-            ang = angle;
-            add = 0;
         }
-        //turn to point towards hub
-        turnHeading(ang);
-        Thread.sleep( 50);
-        // go near the hub
-        linearY(dir*(forward+add), .3);
-        if (path<=1) {
-            Thread.sleep(50);
-            moveArm(t, .2);
-        }
-        Thread.sleep(200);
-        linearY(dir*5, .2);
-        if (path==2){
-            Thread.sleep(50);
-            moveArm(t, .2);
-        }
-        Thread.sleep(200);
-        resetClaw(300);
-        Thread.sleep(50);
-        linearY(dir*-(forward+add)/2, .5);
-        Thread.sleep(50);
-
-        moveArm(250, .4);
-        Thread.sleep(100);
-        turnHeading(62);
-        Thread.sleep(100);
-        linearY(-16, .55);
-        linearY(-1.5, .1);
-        Thread.sleep(10);
-
-        flyWheel.setPower(.6);
-        Thread.sleep(2000);
-        flyWheel.setPower(0);
-
-        //linearY(1, .8);
-        turnHeading(0, .8);
-        Thread.sleep(50);
-        linearY(8, .9);
-        moveArm(500, .75);
-
-
-    }
-
-    public void runLeft(int side) throws InterruptedException {
-        side = 1;
-        int t, dir;
-        double ang, add;
-        closeClaw();
-        linearY(6, .5);
-        Thread.sleep(300);
-
-
-        //10
-        //160
-        //720
-
-        if (path == 0) {
-            //turn to point towards hub
-            turnHeading(37.5);
-            Thread.sleep(100);
-            moveArm(100, .2);
-            Thread.sleep(100);
-            linearY(7, .2);
-
-            Thread.sleep(100);
-            resetClaw(300);
-            Thread.sleep(100);
-
-            linearY(-7, .5);
-            Thread.sleep(100);
-        } else if (path == 1) {
-            //turn to point towards hub
-            turnHeading(37.5);
-            Thread.sleep(100);
-            moveArm(220, .2);
-            Thread.sleep(100);
-            linearY(7, .2);
-
-            Thread.sleep(100);
-            resetClaw(300);
-            Thread.sleep(100);
-
-            linearY(-7, .5);
-            Thread.sleep(100);
-        } else {
-            turnHeading(-180 + 37.5);
-            Thread.sleep(100);
-            linearY(-10, .2);
-
-            moveArm(720, .4);
-            Thread.sleep(200);
-
-            Thread.sleep(100);
-            resetClaw(300);
-            Thread.sleep(100);
-
-            linearY(10, .4);
-            Thread.sleep(100);
-            turnHeading(-37.5);
-        }
-
-        turnHeading(-90);
-        Thread.sleep(50);
-        moveArm(200, .5);
-        Thread.sleep(50);
-
-        //linearY(-30, 1);
-
-    }
-    public void runRight(int side) throws InterruptedException {
-        side = 1;
-        int t, dir;
+        /*int t, dir;
         double forward = 19.701-2-1-10;
         double angle = 37.5;
         double ang, add;
@@ -226,7 +89,7 @@ public class Auto extends LeoOpMode
             add = 0;
         }
         //turn to point towards hub
-        turnHeading(ang*side);
+        turnHeading(ang);
         Thread.sleep(100);
         // go near the hub
         linearY(dir*forward, .4);
@@ -245,20 +108,207 @@ public class Auto extends LeoOpMode
         Thread.sleep(100);
         linearY(dir*-(forward+add)/2, .5);
         Thread.sleep(100);
-        turnHeading(70*side);
-        linearY(-16, .6);
-        linearY(-2.5, .1);
+        turnHeading(-90);
+        Thread.sleep(50);
+        moveArm(200, .5);
+        Thread.sleep(50);
+        linearY(-50, .8);
+*/
+    }
 
-        flyWheel.setPower(0.35);
-        Thread.sleep(3500);
+
+    public void runLeft(int side) throws InterruptedException {
+        side = 1;
+        int t, dir;
+        double ang, add;
+        closeClaw();
+        linearY(6, .5);
+        Thread.sleep(300);
+
+
+        //10
+        //160
+        //720
+
+        if (path == 0) {
+            //turn to point towards hub
+            turnHeading(-40);
+            moveArm(150, .2);
+            Thread.sleep(100);
+            linearY(7, .2);
+
+            Thread.sleep(100);
+            resetClaw(300);
+            Thread.sleep(100);
+
+            linearY(-4, .5);
+        } else if (path == 1) {
+            //turn to point towards hub
+            turnHeading(-40);
+            moveArm(220, .2);
+            Thread.sleep(100);
+            linearY(7, .2);
+
+            Thread.sleep(100);
+            resetClaw(300);
+            Thread.sleep(100);
+
+            linearY(-4, .5);
+            Thread.sleep(100);
+        } else {
+            //turnHeading(180 - 40, 1);
+            turnHeading(-40, 1);
+            linearY(6.5, .4);
+            turnHeading(180 - 40, 1);
+            linearY(-4.5, 1);
+            moveArm(720, .2);
+            Thread.sleep(50);
+
+            resetClaw(300);
+            Thread.sleep(50);
+
+            linearY(7.5, .4);
+            Thread.sleep(50);
+        }
+
+        moveArm(300, .5);
+        sleep(50);
+        turnHeading(-90, 0.8);
+        linearY(2.5, 0.4);
+        linearY(-35, .8);
+    }
+    public void runRight(int side) throws InterruptedException {
+        side = 1;
+        int t, dir;
+        double ang, add;
+        closeClaw();
+        linearY(6, .5);
+        Thread.sleep(300);
+
+
+        //10
+        //160
+        //720
+
+        if (path == 0) {
+            //turn to point towards hub
+            turnHeading(40);
+            moveArm(150, .2);
+            Thread.sleep(100);
+            linearY(7, .2);
+
+            Thread.sleep(100);
+            resetClaw(300);
+            Thread.sleep(100);
+
+            linearY(-7, .5);
+        } else if (path == 1) {
+            //turn to point towards hub
+            turnHeading(40);
+            moveArm(220, .2);
+            Thread.sleep(100);
+            linearY(7, .2);
+
+            Thread.sleep(100);
+            resetClaw(300);
+            Thread.sleep(100);
+
+            linearY(-7, .5);
+            Thread.sleep(100);
+        } else {
+            turnHeading(-180 + 40, 1);
+            linearY(-10, .4);
+
+            moveArm(720, .4);
+            Thread.sleep(50);
+
+            resetClaw(300);
+            Thread.sleep(50);
+
+            linearY(10, .4);
+            Thread.sleep(50);
+        }
+
+
+
+        turnHeading(75, 0.8);
+        moveArm(0, .5);
+        Thread.sleep(50);
+
+        linearY(-9, 0.4);
+        linearY(-2, 0.05);
+
+        flyWheel.setPower(.6);
+        Thread.sleep(2000);
         flyWheel.setPower(0);
 
-        //go back to base
-        linearY(10,.7);
-        turnHeading(90);
+        Thread.sleep(50);
+        linearY(1, 0.4);
+        Thread.sleep(50);
+        turnHeading(0);
+        linearY(8, 0.8);
+        resetClaw(300);
+
+    }
+
+    public void runRedRight() throws InterruptedException {
+        int t, dir;
+        double ang, add;
         closeClaw();
-        moveArm(100,.5);
-        linearY(60, 1);
+        linearY(6, .5);
+        Thread.sleep(300);
+
+
+        //10
+        //160
+        //720
+
+        if (path == 0) {
+            //turn to point towards hub
+            turnHeading(40);
+            moveArm(150, .2);
+            Thread.sleep(100);
+            linearY(7, .2);
+
+            Thread.sleep(100);
+            resetClaw(300);
+            Thread.sleep(100);
+
+            linearY(-5, .5);
+        } else if (path == 1) {
+            //turn to point towards hub
+            turnHeading(40);
+            moveArm(220, .2);
+            Thread.sleep(100);
+            linearY(7, .2);
+
+            Thread.sleep(100);
+            resetClaw(300);
+            Thread.sleep(100);
+
+            linearY(-5, .5);
+            Thread.sleep(100);
+        } else {
+            turnHeading(40, 1);
+            linearY(7, .4);
+            turnHeading(-180 + 40, 1);
+            linearY(-3, .4);
+            moveArm(720, .2);
+            Thread.sleep(50);
+
+            resetClaw(300);
+            Thread.sleep(50);
+
+            linearY(10 - 3.5, .4);
+            Thread.sleep(50);
+        }
+
+
+        turnHeading(90, 0.8);
+        moveArm(150, .5);
+        Thread.sleep(50);
+
+        linearY(-30, 0.8);
 
     }
 
@@ -288,7 +338,7 @@ public class Auto extends LeoOpMode
         turnHeading(20, 0.2);
 */
         //runAutoPath(path);
-       // grabCube();
+        // grabCube();
 
 /*
         closeClaw();
