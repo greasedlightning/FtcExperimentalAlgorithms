@@ -95,8 +95,28 @@ public class TeleOp extends OpMode {
         bottomRight.setPower((leftY + rightX) * pow);
     }
 
+    public void moveArm(int ticks, double power) {
+        //armBase.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        //arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        armBase.setTargetPosition(ticks);
+        armBase.setPower(power);
+        armBase.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        while (armBase.isBusy()) {
+        }
+        //armBase.setPower(0);
+        //armBase.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+    }
+
+    public void setArm(int ticks){
+        int pos = armBase.getCurrentPosition();
+        double err = -(pos - ticks);
+        double pow = (err) / 1000;
+        armBase.setPower(Math.min(pow, .05));
+    }
+
     @Override
-    public void loop() {
+    public void loop()  {
         readEncoder();
 
         //GamePad One - Drive Train
@@ -119,5 +139,45 @@ public class TeleOp extends OpMode {
         if      (close > 0) { claw.setPower(close * -0.5); } //close
         else if (open > 0)  { claw.setPower(open *   0.5); } //open
         else                { claw.setPower(0);            } //stay
+
+        // set to corresponding level depending on click
+        if          (gamepad2.y){
+            claw.setPower(1);
+            try {
+                Thread.sleep(300);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            setArm(650);
+        } else if     (gamepad2.b) {
+            claw.setPower(1);
+            try {
+                Thread.sleep(300);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            setArm(230);
+        }
+        else if    (gamepad2.a) {
+            claw.setPower(1);
+            try {
+                Thread.sleep(300);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            setArm(135);
+        } else if         (gamepad2.x) {
+            claw.setPower(1);
+            setArm(-20);
+            claw.setPower(-1);
+            try {
+                Thread.sleep(300);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            claw.setPower(0);
+        } else {
+            armBase.setPower(0);
+        }
     }
 }
