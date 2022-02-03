@@ -133,7 +133,7 @@ public class Auto extends LeoOpMode
         if (path == 0) {
             //turn to point towards hub
             turnHeading(-40);
-            moveArm(150, .2);
+            moveArm(135, .2);
             Thread.sleep(100);
             linearY(7, .2);
 
@@ -161,7 +161,7 @@ public class Auto extends LeoOpMode
             linearY(6.5, .4);
             turnHeading(180 - 40, 1);
             linearY(-4.5, 1);
-            moveArm(720, .2);
+            moveArm(650, .2);
             Thread.sleep(50);
 
             resetClaw(300);
@@ -193,7 +193,7 @@ public class Auto extends LeoOpMode
         if (path == 0) {
             //turn to point towards hub
             turnHeading(40);
-            moveArm(150, .2);
+            moveArm(135, .2);
             Thread.sleep(100);
             linearY(7, .2);
 
@@ -217,11 +217,11 @@ public class Auto extends LeoOpMode
             Thread.sleep(100);
         } else {
             turnHeading(-180 + 40, 1);
-            linearY(-10, .4);
+            linearY(-10, .2);
 
             moveArm(500, .4);
             Thread.sleep(50);
-            moveArm(720, .2);
+            moveArm(650, .2);
             Thread.sleep(50);
 
             resetClaw(300);
@@ -233,23 +233,26 @@ public class Auto extends LeoOpMode
 
 
 
-        turnHeading(65, 0.8);
+        turnHeading(65, 1);
         moveArm(0, .5);
         Thread.sleep(50);
 
         linearY(-9, 0.4);
-        flyWheel.setPower(.2);
-        linearY(-1.5, 0.05);
-        Thread.sleep(2000);
+        flyWheel.setPower(0.1);
+        linearY(-2, 0.05);
+        Thread.sleep(3000);
+        flyWheel.setPower(-0.3);
+        Thread.sleep(200);
         flyWheel.setPower(1);
-        Thread.sleep(100);
-
+        Thread.sleep(500);
         flyWheel.setPower(0);
 
         linearY(1, 0.4);
         Thread.sleep(50);
-        turnHeading(0);
-        linearY(10, 0.3);
+        turnHeading(-5);
+        linearY(9.5, 0.5);
+        turnHeading(0, .9);
+        linearY(.5, .8);
         resetClaw(300);
 
     }
@@ -269,7 +272,7 @@ public class Auto extends LeoOpMode
         if (path == 0) {
             //turn to point towards hub
             turnHeading(-40);
-            moveArm(150, .2);
+            moveArm(135, .2);
             Thread.sleep(100);
             linearY(7, .2);
 
@@ -293,9 +296,9 @@ public class Auto extends LeoOpMode
             Thread.sleep(100);
         } else {
             turnHeading(180 - 40, 1);
-            linearY(-10, .4);
+            linearY(-10, .2);
 
-            moveArm(720, .4);
+            moveArm(650, .4);
             Thread.sleep(50);
 
             resetClaw(300);
@@ -341,7 +344,7 @@ public class Auto extends LeoOpMode
         if (path == 0) {
             //turn to point towards hub
             turnHeading(40);
-            moveArm(150, .2);
+            moveArm(135, .2);
             Thread.sleep(100);
             linearY(7, .2);
 
@@ -365,10 +368,10 @@ public class Auto extends LeoOpMode
             Thread.sleep(100);
         } else {
             turnHeading(40, 1);
-            linearY(7, .4);
+            linearY(7, .2);
             turnHeading(-180 + 40, 1);
-            linearY(-3, .4);
-            moveArm(720, .2);
+            linearY(-3, .2);
+            moveArm(650, .2);
             Thread.sleep(50);
 
             resetClaw(300);
@@ -380,7 +383,7 @@ public class Auto extends LeoOpMode
 
 
         turnHeading(90, 0.8);
-        moveArm(150, .5);
+        moveArm(125, .5);
         Thread.sleep(50);
 
         linearY(-32, 0.8);

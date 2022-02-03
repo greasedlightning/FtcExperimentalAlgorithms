@@ -326,7 +326,7 @@ public abstract class LeoOpMode extends LinearOpMode{
 
         while(opModeIsActive() && Math.abs(err)>tol){
             int ticks = (int)(m_P*err);
-            moveRobotSmooth(-ticks, ticks, power);
+            moveRobot(-ticks, ticks, power);
             err = (angle-this.getAngle());
             power *= 0.7;
             //pow = 1 * (err / 90);
