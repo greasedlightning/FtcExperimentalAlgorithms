@@ -258,16 +258,9 @@ public class Auto extends LeoOpMode
     }
 
     public void runRedLeft() throws InterruptedException {
-        int t, dir;
-        double ang, add;
         closeClaw();
         linearY(6, .5);
         Thread.sleep(300);
-
-
-        //10
-        //160
-        //720
 
         if (path == 0) {
             //turn to point towards hub
@@ -298,7 +291,9 @@ public class Auto extends LeoOpMode
             turnHeading(180 - 40, 1);
             linearY(-10, .2);
 
-            moveArm(650, .4);
+            moveArm(500, .4);
+            Thread.sleep(50);
+            moveArm(650, .2);
             Thread.sleep(50);
 
             resetClaw(300);
@@ -310,22 +305,26 @@ public class Auto extends LeoOpMode
 
 
 
-        turnHeading(-65, 0.8);
+        turnHeading(-65, 1);
         moveArm(0, .5);
         Thread.sleep(50);
 
         linearY(-9, 0.4);
-        linearY(-1, 0.05);
-
-        flyWheel.setPower(.6);
-        Thread.sleep(2000);
+        flyWheel.setPower(0.1);
+        linearY(-2, 0.05);
+        Thread.sleep(3000);
+        flyWheel.setPower(-0.3);
+        Thread.sleep(200);
+        flyWheel.setPower(1);
+        Thread.sleep(500);
         flyWheel.setPower(0);
 
-        Thread.sleep(50);
         linearY(1, 0.4);
         Thread.sleep(50);
-        turnHeading(0);
-        linearY(9, 0.8);
+        turnHeading(-5);
+        linearY(9.5, 0.5);
+        turnHeading(0, .9);
+        linearY(.5, .8);
         resetClaw(300);
     }
 

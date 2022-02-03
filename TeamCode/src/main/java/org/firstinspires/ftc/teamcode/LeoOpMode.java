@@ -136,48 +136,6 @@ public abstract class LeoOpMode extends LinearOpMode{
         bottomRight.setPower(powRight);
     }
 
-    public void turnHeadingNF(double angle) throws InterruptedException {
-        double speed = 0.02;
-        int lastDir = 0;
-
-        while (opModeIsActive()) {
-            Orientation angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-
-            telemetry.addData("Currently buffering position: ", angles.firstAngle);
-            telemetry.update();
-
-            double dif = Math.abs(angles.firstAngle - angle);
-            if (dif < 1) {
-                break;
-            }
-
-            double pow = speed;
-            if (angle < angles.firstAngle) {
-                pow *= 1;
-                if (lastDir == 0) { lastDir = 1; }
-                else if (lastDir == -1) {
-                    speed /= 2.0;  lastDir = 1;
-                }
-            } else {
-                pow *= -1;
-                if (lastDir == 0) {
-                    lastDir = -1;
-                } else if (lastDir == 1) {
-                    speed /= 2.0; lastDir = -1;
-                }
-            }
-            topLeft.setPower(-pow);
-            topRight.setPower(pow);
-            bottomLeft.setPower(-pow);
-            bottomRight.setPower(pow);
-        }
-        topLeft.setPower(0);
-        topRight.setPower(0);
-        bottomLeft.setPower(0);
-        bottomRight.setPower(0);
-    }
-
-
     ///Set Single Power
     public void setSinglePow(double pow){
         topLeft.setPower(pow);
@@ -328,9 +286,22 @@ public abstract class LeoOpMode extends LinearOpMode{
             int ticks = (int)(m_P*err);
             moveRobot(-ticks, ticks, power);
             err = (angle-this.getAngle());
-            power *= 0.7;
-            //pow = 1 * (err / 90);
-            //setColumnPow(-pow, pow);
+            telemetry.addLine(String.valueOf(this.getAngle()));
+            telemetry.update();
+        }
+    }
+    public void turnHeadingSmooth(double angle, double pow) throws InterruptedException {
+        double power = pow;
+        double m_P = 5.5;
+        double tol = 2.5;
+
+        double err = (angle-getAngle());
+
+        while(opModeIsActive() && Math.abs(err)>tol){
+            int ticks = (int)(m_P*err);
+            double sign = err / Math.abs(err);
+            this.setColumnPow(-sign*pow, sign*pow);
+            err = (angle-getAngle());
             telemetry.addLine(String.valueOf(this.getAngle()));
             telemetry.update();
         }
