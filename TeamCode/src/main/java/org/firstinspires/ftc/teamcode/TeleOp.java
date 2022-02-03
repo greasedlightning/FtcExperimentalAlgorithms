@@ -111,8 +111,8 @@ public class TeleOp extends OpMode {
     public void setArm(int ticks){
         int pos = armBase.getCurrentPosition();
         double err = -(pos - ticks);
-        double pow = (err) / 1000;
-        armBase.setPower(Math.min(pow, .05));
+        double pow = err / 1000;
+        armBase.setPower(pow);
     }
 
     @Override
