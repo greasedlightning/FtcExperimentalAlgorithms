@@ -4,15 +4,18 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
+import org.firstinspires.ftc.teamcode.experimental.CompVision;
+
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import org.firstinspires.ftc.teamcode.experimental.PIDControl;
 
 public abstract class LeoOpMode extends LinearOpMode{
     ElapsedTime time = new ElapsedTime();
+
+    CompVision cam;
 
     DcMotor topLeft;
     DcMotor topRight;
@@ -29,14 +32,13 @@ public abstract class LeoOpMode extends LinearOpMode{
     // experimental PID control - localization
     Orientation lastAngles;
     double globalAngle;
-    PIDControl pid;
 
     final double RADIUS=2;
     final double PI=3.1415926535;
     final double CIRCUMFERENCE = 2*PI*RADIUS;
     final int TPR = 1120;
 
-    public void initRobo(){
+    public void initRobo() {
         //Control Hub
         topLeft = hardwareMap.dcMotor.get("topLeft");           //1 Motor
         topRight = hardwareMap.dcMotor.get("topRight");         //0 Motor
@@ -62,7 +64,7 @@ public abstract class LeoOpMode extends LinearOpMode{
         topRight.setPower(0);
         bottomLeft.setPower(0);
         bottomRight.setPower(0);
-        
+
         topLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         topRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         bottomLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -100,19 +102,7 @@ public abstract class LeoOpMode extends LinearOpMode{
         lastAngles = new Orientation();
         lastAngles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
         globalAngle = 0;
-
-
-        double kP, kI, kD; // constant parameters
-        kP = 0.1;
-        kI = 1;
-        kD = 0.5;
-        this.pid = new PIDControl(kP, kI, kD);
-        this.pid.setSetpoint(0);
-        this.pid.setOutputRange(0, 1);
-        this.pid.setInputRange(-90, 90);
-        this.pid.enable();
     }
-
     public void moveArmBase(double power, int time) throws InterruptedException{
         armBase.setPower(power);
         Thread.sleep(time);
@@ -139,38 +129,12 @@ public abstract class LeoOpMode extends LinearOpMode{
         Orientation angles = this.imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
         return angles.firstAngle;
     }
-    //remember to set setpoint
-    public double[] calcCorrection(double power, double angle){
-        double powerCorrection = this.pid.performPID(angle);
-        double[] corrections = {(power - powerCorrection) ,(power + powerCorrection), power};
-        return corrections;
-    }
     public void setColumnPow(double powLeft, double powRight){
         topLeft.setPower(powLeft);
         topRight.setPower(powRight);
         bottomLeft.setPower(powLeft);
         bottomRight.setPower(powRight);
     }
-    public void turnHeadingAM(double angle) throws InterruptedException { // this is not really turn heading, it's weirder
-        this.pid.setSetpoint(angle);
-        double pow = .4, tol = 1;
-        double [] correction; // = new double[2];
-        double err = Math.abs(this.globalAngle - angle);
-        while (opModeIsActive() && err > tol) {
-            telemetry.addData("Currently buffering absolute angle: ", this.getAngle());
-            telemetry.update();
-            correction = this.calcCorrection(pow, this.getAngle()); // calc correction
-            this.setColumnPow(correction[0], correction[1]); // correct
-            err = Math.abs(this.globalAngle - angle);
-        }
-        // reset
-        topLeft.setPower(0);
-        topRight.setPower(0);
-        bottomLeft.setPower(0);
-        bottomRight.setPower(0);
-    }
-
-    // end experimental ------------------------
 
     public void turnHeadingNF(double angle) throws InterruptedException {
         double speed = 0.02;

@@ -56,7 +56,7 @@ public class Auto extends LeoOpMode
                 runLeft(1);
                 break;
             case 2:
-                runLeft(-1);
+                runRedLeft();
                 break;
             case 1:
                 runRight(1);
@@ -219,6 +219,82 @@ public class Auto extends LeoOpMode
             turnHeading(-180 + 40, 1);
             linearY(-10, .4);
 
+            moveArm(500, .4);
+            Thread.sleep(50);
+            moveArm(720, .2);
+            Thread.sleep(50);
+
+            resetClaw(300);
+            Thread.sleep(50);
+
+            linearY(10, .4);
+            Thread.sleep(50);
+        }
+
+
+
+        turnHeading(65, 0.8);
+        moveArm(0, .5);
+        Thread.sleep(50);
+
+        linearY(-9, 0.4);
+        flyWheel.setPower(.2);
+        linearY(-1.5, 0.05);
+        Thread.sleep(2000);
+        flyWheel.setPower(1);
+        Thread.sleep(100);
+
+        flyWheel.setPower(0);
+
+        linearY(1, 0.4);
+        Thread.sleep(50);
+        turnHeading(0);
+        linearY(10, 0.3);
+        resetClaw(300);
+
+    }
+
+    public void runRedLeft() throws InterruptedException {
+        int t, dir;
+        double ang, add;
+        closeClaw();
+        linearY(6, .5);
+        Thread.sleep(300);
+
+
+        //10
+        //160
+        //720
+
+        if (path == 0) {
+            //turn to point towards hub
+            turnHeading(-40);
+            moveArm(150, .2);
+            Thread.sleep(100);
+            linearY(7, .2);
+
+            Thread.sleep(100);
+            resetClaw(300);
+            Thread.sleep(100);
+
+            linearY(-7, .5);
+        } else if (path == 1) {
+            //turn to point towards hub
+            turnHeading(-40);
+            moveArm(220, .2);
+            Thread.sleep(100);
+            linearY(7, .2);
+
+            Thread.sleep(100);
+            resetClaw(300);
+            Thread.sleep(100);
+
+            linearY(-7, .5);
+            Thread.sleep(100);
+        } else {
+            turnHeading(180 - 40, 1);
+            linearY(-10, .4);
+
             moveArm(720, .4);
             Thread.sleep(50);
 
@@ -231,12 +307,12 @@ public class Auto extends LeoOpMode
 
 
 
-        turnHeading(75, 0.8);
+        turnHeading(-65, 0.8);
         moveArm(0, .5);
         Thread.sleep(50);
 
         linearY(-9, 0.4);
-        linearY(-2, 0.05);
+        linearY(-1, 0.05);
 
         flyWheel.setPower(.6);
         Thread.sleep(2000);
@@ -246,9 +322,8 @@ public class Auto extends LeoOpMode
         linearY(1, 0.4);
         Thread.sleep(50);
         turnHeading(0);
-        linearY(8, 0.8);
+        linearY(9, 0.8);
         resetClaw(300);
-
     }
 
     public void runRedRight() throws InterruptedException {
@@ -308,7 +383,7 @@ public class Auto extends LeoOpMode
         moveArm(150, .5);
         Thread.sleep(50);
 
-        linearY(-30, 0.8);
+        linearY(-32, 0.8);
 
     }
 

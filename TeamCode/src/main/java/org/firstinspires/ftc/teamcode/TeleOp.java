@@ -89,10 +89,10 @@ public class TeleOp extends OpMode {
         double rightY = gamepad1.right_stick_y;
         double rightX = gamepad1.right_stick_x;
 
-        topLeft.setPower(    (leftY - leftX - rightX) * pow);
-        topRight.setPower(   (leftY + leftX + rightX) * pow);
-        bottomLeft.setPower( (leftY + leftX - rightX) * pow);
-        bottomRight.setPower((leftY + leftX + rightX) * pow);
+        topLeft.setPower(    (leftY - rightX) * pow);
+        topRight.setPower(   (leftY + rightX) * pow);
+        bottomLeft.setPower( (leftY - rightX) * pow);
+        bottomRight.setPower((leftY + rightX) * pow);
     }
 
     @Override
