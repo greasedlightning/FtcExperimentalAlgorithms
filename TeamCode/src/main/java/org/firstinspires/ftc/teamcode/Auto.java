@@ -36,7 +36,7 @@ public class Auto extends LeoOpMode
     public void runAutoPath(int starting) throws InterruptedException {
         initRobo();
         cam = new CompVision(hardwareMap, 1);
-
+        waitForStart();
         while(path == -1){
             cam.printDebugCam1(telemetry);
             cam.printStats(telemetry);
@@ -44,12 +44,6 @@ public class Auto extends LeoOpMode
             telemetry.addLine("Path chosen: " + path);
             telemetry.update();
         }
-        telemetry.addLine("Path chosen: " + path);
-        telemetry.addLine("Waiting for start");
-        telemetry.update();
-        waitForStart();
-        sleep(100);
-
 
         switch (starting) {
             case 0:

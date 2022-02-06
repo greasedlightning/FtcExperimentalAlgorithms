@@ -111,7 +111,7 @@ public class TeleOp extends OpMode {
     public void setArm(int ticks){
         int pos = armBase.getCurrentPosition();
         double err = ticks - pos;
-        double pow = err / 1000;
+        double pow = err / 2000;
         armBase.setPower(pow);
     }
 
@@ -142,6 +142,7 @@ public class TeleOp extends OpMode {
 
         // set to corresponding level depending on click
         // top level
+        /*
         if          (gamepad2.y){
             claw.setPower(1);
             setArm(650);
@@ -157,7 +158,7 @@ public class TeleOp extends OpMode {
             setArm(135);
         } else if         (gamepad2.x) {
             claw.setPower(1);
-            setArm(-20);
+            setArm(-30);
             claw.setPower(-1);
             try {
                 Thread.sleep(300);
@@ -170,5 +171,18 @@ public class TeleOp extends OpMode {
         else {
             armBase.setPower(0);
         }
+
+
+        if  (gamepad2.x) {
+            claw.setPower(1);
+            setArm(-60);
+            claw.setPower(-1);
+            try {
+                Thread.sleep(300);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            claw.setPower(0);
+        }*/
     }
 }

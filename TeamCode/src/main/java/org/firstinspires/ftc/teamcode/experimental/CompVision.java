@@ -177,7 +177,6 @@ public class CompVision {
                 path = 0;
             } else {
                 //path = ele.y;
-
                 if (ele.y < 20) {
                     path = 0;
                 } else if ( ele.y < 55) {
